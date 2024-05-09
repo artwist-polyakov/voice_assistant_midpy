@@ -7,11 +7,10 @@ services:
     restart: on-failure
     ports:
       - "8000:80"
-      - "443:443"
     volumes:
-      - static_volume:/var/www/static
-      - media_volume:/var/www/media
-      - admin_volume:/var/www/static/admin
+      - static_volume:/var/www/static:rw
+      - media_volume:/var/www/media:rw
+      - admin_volume:/var/www/static/admin:rw
 #    depends_on:
 #      - auth
 
@@ -23,8 +22,6 @@ services:
       - .env
     ports:
       - "5432:5432"
-    volumes:
-      - ./postgres/:/docker-entrypoint-initdb.d/
 
   elasticsearch-node1:
     container_name: elasticsearch-node1
@@ -72,17 +69,11 @@ services:
 
   redis:
     container_name: redis
-    image: redis:7.2.3-alpine
-    restart: on-failure
-    environment:
-      - REDIS_PORT=${REDIS_PORT}
-      - REDIS_DATABASES=16
-    expose:
-      - ${REDIS_PORT}
+    image: redis:latest
     volumes:
-      - redis_data:/root/redis
-#    networks:
-#      - auth
+      - ./redis/redis.conf:/redis.conf
+    command: [ "redis-server", "/redis.conf" ]
+    restart: on-failure
 
   logstash:
       container_name: logstash
