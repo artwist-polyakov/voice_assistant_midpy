@@ -8,9 +8,4 @@ RUN mkdir -p /var/www/static \
 
 COPY data/ /var/www/static
 
-COPY ssl/localhost.crt /etc/nginx/ssl/localhost.crt
-COPY ssl/localhost.key /etc/nginx/ssl/localhost.key
-
-
-
-EXPOSE 80 443
+EXPOSE 80
