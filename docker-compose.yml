@@ -26,18 +26,6 @@ services:
     volumes:
       - ./postgres/:/docker-entrypoint-initdb.d/
 
-  etl-elasticsearch:
-    container_name: etl-elasticsearch
-    build: ./etl_elasticsearch
-    restart: on-failure
-    env_file:
-      - .env
-    depends_on:
-      - postgres
-      - elasticsearch-node1
-      - elasticsearch-node2
-      - redis
-
   elasticsearch-node1:
     container_name: elasticsearch-node1
     image: elasticsearch:${STACK_VERSION}
