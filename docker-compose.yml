@@ -1,0 +1,113 @@
+version: '3'
+
+services:
+  nginx:
+    container_name: nginx
+    build: ./nginx
+    restart: on-failure
+    ports:
+      - "8000:80"
+    volumes:
+      - static_volume:/var/www/static:rw
+      - media_volume:/var/www/media:rw
+      - admin_volume:/var/www/static/admin:rw
+#    depends_on:
+#      - auth
+
+  postgres:
+    container_name: postgres
+    image: postgres:${POSTGRES_VERSION}
+    restart: on-failure
+    env_file:
+      - .env
+    ports:
+      - "5432:5432"
+
+  elasticsearch-node1:
+    container_name: elasticsearch-node1
+    image: elasticsearch:${STACK_VERSION}
+    restart: on-failure
+    env_file:
+      - .env
+    environment:
+      - node.name=elasticsearch-node1
+      - discovery.seed_hosts=elasticsearch-node1,elasticsearch-node2
+      - cluster.initial_master_nodes=elasticsearch-node1
+      - cluster.name=${ELASTIC_CLUSTER_NAME}
+      - bootstrap.memory_lock=${MEMORY_LOCK}
+      - "ES_JAVA_OPTS=-Xms256m -Xmx256m"
+      - xpack.security.enabled=false
+      - xpack.monitoring.collection.enabled=false
+#      - xpack.license.self_generated.type=basic
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+
+  elasticsearch-node2:
+    image: elasticsearch:${STACK_VERSION}
+    container_name: elasticsearch-node2
+    restart: on-failure
+    env_file:
+      - .env
+    environment:
+      - node.name=elasticsearch-node2
+      - discovery.seed_hosts=elasticsearch-node1,elasticsearch-node2
+      - cluster.initial_master_nodes=elasticsearch-node1
+      - cluster.name=${ELASTIC_CLUSTER_NAME}
+      - bootstrap.memory_lock=${MEMORY_LOCK}
+      - "ES_JAVA_OPTS=-Xms256m -Xmx256m"
+      - xpack.security.enabled=false
+      - xpack.monitoring.collection.enabled=false
+#      - xpack.license.self_generated.type=basic
+    depends_on:
+      - elasticsearch-node1
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+
+  redis:
+    container_name: redis
+    image: redis:latest
+    volumes:
+      - ./redis/redis.conf:/redis.conf
+    command: [ "redis-server", "/redis.conf" ]
+    restart: on-failure
+
+  logstash:
+      container_name: logstash
+      image: logstash:${STACK_VERSION}
+      env_file:
+        - .env
+      environment:
+        LS_JAVA_OPTS: "-Xmx512m -Xms512m"
+      ports:
+        - ${LOGSTASH_PORTS1}
+        - ${LOGSTASH_PORTS2}
+        - ${LOGSTASH_PORTS3}
+      volumes:
+        - ./configs/logstash/config.yml:/usr/share/logstash/config/logstash.yml:ro
+        - ./configs/logstash/pipelines.yml:/usr/share/logstash/config/pipelines.yml:ro
+        - ./configs/logstash/pipelines:/usr/share/logstash/config/pipelines:ro
+      depends_on:
+        - elasticsearch-node1
+
+  kibana:
+    container_name: kibana
+    image: kibana:${STACK_VERSION}
+    env_file:
+      - .env
+    ports:
+      - ${KIBANA_PORTS}
+    volumes:
+      - ./configs/kibana/config.yml:/usr/share/kibana/config/kibana.yml:ro
+    depends_on:
+      - elasticsearch-node1
+
+volumes:
+    static_volume:
+    media_volume:
+    admin_volume:
+    redis_data:
+    logs:
