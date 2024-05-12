@@ -29,6 +29,10 @@ package Enriching {
     queue TranslateQueue
 }
 
+package  Notifications {
+    [IsAvailable]
+}
+
 VoiceInterface --down--> [API Gateway] : voice command
 
 [API Gateway] -left-> CacheStorage : get context from cache
@@ -38,6 +42,6 @@ VoiceInterface --down--> [API Gateway] : voice command
 [Data ETL]  --down-> TranslateQueue
 TranslateQueue -down-> SearchStorage
 
-
+[API Gateway] --> [IsAvailable] : degradation
 
 @enduml
