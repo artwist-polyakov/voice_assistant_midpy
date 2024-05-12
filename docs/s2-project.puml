@@ -25,12 +25,19 @@ package Cache {
     database CacheStorage
 }
 
+package Enriching {
+    queue TranslateQueue
+}
+
 VoiceInterface --down--> [API Gateway] : voice command
 
 [API Gateway] -left-> CacheStorage : get context from cache
 
 [API Gateway] -right-> SearchStorage : get data from storage
 
-[Data ETL] --down--> SearchStorage : update data
+[Data ETL]  --down-> TranslateQueue
+TranslateQueue -down-> SearchStorage
+
+
 
 @enduml
