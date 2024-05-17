@@ -7,7 +7,7 @@ ENV PYTHONUNBUFFERED 1
 
 COPY requirements.txt requirements.txt
 RUN pip install --upgrade pip && \
-    pip install -r requirements.txt
+    pip install --no-cache-dir --use-feature=fast-deps -r requirements.txt
 
 COPY . .
 
