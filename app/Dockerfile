@@ -5,9 +5,13 @@ WORKDIR /app
 ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
 
+RUN apt-get update && apt-get install -y build-essential
+
 COPY requirements.txt requirements.txt
-RUN pip install --upgrade pip && \
-    pip install --no-cache-dir --use-feature=fast-deps -r requirements.txt
+
+RUN echo "[global]\njobs=1" > /etc/pip.conf
+RUN pip install --upgrade pip
+RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
 
