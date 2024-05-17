@@ -1,0 +1,47 @@
+@startuml
+
+title
+<b>Movies voice assistant pipeline</b>
+end title
+
+package Users {
+    actor VoiceInterface
+
+}
+
+package ETL {
+    [Data ETL]
+}
+
+package API {
+    [API Gateway]
+}
+
+package Storage {
+   database SearchStorage
+}
+
+package Cache {
+    database CacheStorage
+}
+
+package Enriching {
+    queue TranslateQueue
+}
+
+package  Notifications {
+    [IsAvailable]
+}
+
+VoiceInterface --down--> [API Gateway] : voice command
+
+[API Gateway] -left-> CacheStorage : get context from cache
+
+[API Gateway] -right-> SearchStorage : get data from storage
+
+[Data ETL]  --down-> TranslateQueue
+TranslateQueue -down-> SearchStorage
+
+[API Gateway] --> [IsAvailable] : degradation
+
+@enduml
