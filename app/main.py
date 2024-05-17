@@ -1,19 +1,13 @@
-from functools import lru_cache
-import uvicorn
 import sentry_sdk
-import logging
-from fastapi import FastAPI
-from fastapi.responses import JSONResponse, ORJSONResponse
-from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
-
+import uvicorn
 from api import webhook
-from api.v1.models.request_model import RequestBody
 from core.settings import get_settings
+from fastapi import FastAPI
+from fastapi.responses import ORJSONResponse
 from middlewares.logging_middleware import LoggingMiddleware
 
 settings = get_settings()
 # Хранилище данных о сессиях.
-
 
 
 sentry_sdk.init(

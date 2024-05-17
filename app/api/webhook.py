@@ -1,14 +1,12 @@
 import logging
-from http import HTTPStatus
-
-from fastapi import APIRouter, Depends, Query
-
-from fastapi.responses import JSONResponse
 
 from api.v1.models.request_model import RequestBody
+from fastapi import APIRouter
+from fastapi.responses import JSONResponse
 
 router = APIRouter()
 sessionStorage = {}
+
 
 @router.post("/")
 async def main(request: RequestBody):
