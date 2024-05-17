@@ -1,8 +1,8 @@
 import logging
 import logging.config
 import random
-import traceback
 import time
+import traceback
 from functools import wraps
 
 from configs.log_config import base_logging_config
