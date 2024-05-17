@@ -47,9 +47,11 @@ services:
     env_file:
       - .env
     volumes:
-      - ./postgres/:/docker-entrypoint-initdb.d/
+      - ./postgres/:/docker-entrypoint-initdb.d/:ro
     ports:
       - "5432:5432"
+    expose:
+      - "5432"
 
   elasticsearch:
     container_name: elasticsearch
@@ -57,6 +59,10 @@ services:
     restart: on-failure
     env_file:
       - .env
+    ports:
+      - "9200:9200" # удалить после тестирования
+    expose:
+      - "9200"
     environment:
       - xpack.security.enabled=false
       - discovery.type=single-node
@@ -70,7 +76,7 @@ services:
     container_name: redis
     image: redis:latest
     volumes:
-      - ./redis/redis.conf:/redis.conf
+      - ./redis/redis.conf:/redis.conf:rw
     command: [ "redis-server", "/redis.conf" ]
     restart: on-failure
 

@@ -1,6 +1,7 @@
 import logging
 import logging.config
 import random
+import traceback
 import time
 from functools import wraps
 
@@ -32,9 +33,9 @@ def backoff(start_sleep_time=0.1, factor=2, border_sleep_time=10):
                         border_sleep_time, start_sleep_time * factor * attempt
                     )
                     sleep_with_jitter = random.uniform(0, sleep_time)
-                    logging.error(
-                        f"Error: {error}. Retrying in {sleep_with_jitter} seconds..."
-                    )
+                    error_message = f"Error: {error}. Retrying in {sleep_with_jitter} seconds...\n"
+                    error_traceback = traceback.format_exc()
+                    logging.error(f"{error_message}{error_traceback}")
                     time.sleep(sleep_with_jitter)
                     attempt += 1
 
