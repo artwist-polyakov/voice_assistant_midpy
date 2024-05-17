@@ -28,7 +28,7 @@ async def main(request: RequestBody):
     handle_dialog(request.dict(), response)
 
     logging.info('Response: %r', response)
-
+    response['response']['text'] = "Привет от Саши! " + response['response']['text']
     return JSONResponse(content=response)
 
 

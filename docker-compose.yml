@@ -29,6 +29,16 @@ services:
       - ./nginx/conf.d:/etc/nginx/conf.d
       - ./.certs:/etc/ssl:ro
 
+  etl-elasticsearch:
+    container_name: etl-elasticsearch
+    build: ./etl_elasticsearch
+    env_file:
+      - .env
+    depends_on:
+      - postgres
+      - elasticsearch
+      - redis
+    restart: on-failure
 
   postgres:
     container_name: postgres
@@ -36,48 +46,27 @@ services:
     restart: on-failure
     env_file:
       - .env
+    volumes:
+      - ./postgres/:/docker-entrypoint-initdb.d/:ro
     ports:
       - "5432:5432"
+    expose:
+      - "5432"
 
-  elasticsearch-node1:
-    container_name: elasticsearch-node1
+  elasticsearch:
+    container_name: elasticsearch
     image: elasticsearch:${STACK_VERSION}
     restart: on-failure
     env_file:
       - .env
+    ports:
+      - "9200:9200" # удалить после тестирования
+    expose:
+      - "9200"
     environment:
-      - node.name=elasticsearch-node1
-      - discovery.seed_hosts=elasticsearch-node1,elasticsearch-node2
-      - cluster.initial_master_nodes=elasticsearch-node1
-      - cluster.name=${ELASTIC_CLUSTER_NAME}
-      - bootstrap.memory_lock=${MEMORY_LOCK}
-      - "ES_JAVA_OPTS=-Xms256m -Xmx256m"
       - xpack.security.enabled=false
-      - xpack.monitoring.collection.enabled=false
-#      - xpack.license.self_generated.type=basic
-    ulimits:
-      memlock:
-        soft: -1
-        hard: -1
-
-  elasticsearch-node2:
-    image: elasticsearch:${STACK_VERSION}
-    container_name: elasticsearch-node2
-    restart: on-failure
-    env_file:
-      - .env
-    environment:
-      - node.name=elasticsearch-node2
-      - discovery.seed_hosts=elasticsearch-node1,elasticsearch-node2
-      - cluster.initial_master_nodes=elasticsearch-node1
-      - cluster.name=${ELASTIC_CLUSTER_NAME}
-      - bootstrap.memory_lock=${MEMORY_LOCK}
-      - "ES_JAVA_OPTS=-Xms256m -Xmx256m"
-      - xpack.security.enabled=false
-      - xpack.monitoring.collection.enabled=false
-#      - xpack.license.self_generated.type=basic
-    depends_on:
-      - elasticsearch-node1
+      - discovery.type=single-node
+      - "ES_JAVA_OPTS=-Xms200m -Xmx200m"
     ulimits:
       memlock:
         soft: -1
@@ -87,7 +76,7 @@ services:
     container_name: redis
     image: redis:latest
     volumes:
-      - ./redis/redis.conf:/redis.conf
+      - ./redis/redis.conf:/redis.conf:rw
     command: [ "redis-server", "/redis.conf" ]
     restart: on-failure
 
@@ -107,7 +96,7 @@ services:
         - ./configs/logstash/pipelines.yml:/usr/share/logstash/config/pipelines.yml:ro
         - ./configs/logstash/pipelines:/usr/share/logstash/config/pipelines:ro
       depends_on:
-        - elasticsearch-node1
+        - elasticsearch
 
   kibana:
     container_name: kibana
@@ -119,11 +108,12 @@ services:
     volumes:
       - ./configs/kibana/config.yml:/usr/share/kibana/config/kibana.yml:ro
     depends_on:
-      - elasticsearch-node1
+      - elasticsearch
 
 volumes:
     static_volume:
     media_volume:
+    admin_static:
     admin_volume:
     redis_data:
     logs:
