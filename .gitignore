@@ -164,3 +164,7 @@ cython_debug/
 # Certs
 localhost.*
 /versions/
+
+.certs/*.key
+.certs/*.crt
+.certs/*.pem
