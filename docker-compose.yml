@@ -1,6 +1,18 @@
 version: '3'
 
 services:
+
+  app:
+    container_name: app
+    build: ./app
+    ports:
+      - "5555:5555"
+    env_file:
+      - .env
+    volumes:
+      - ./logs:/logs:rw
+    restart: on-failure
+
   nginx:
     image: nginx:latest
     container_name: nginx
