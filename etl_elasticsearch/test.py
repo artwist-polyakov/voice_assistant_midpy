@@ -1,5 +1,5 @@
-from elasticsearch import Elasticsearch
 from configs.settings import ElasticSettings, settings
+from elasticsearch import Elasticsearch
 
 
 def get_all_documents():
@@ -16,7 +16,8 @@ def get_all_documents():
             "match_all": {}
         }
     }
-    url = f"{elastic_settings.hosts[0].scheme}://{elastic_settings.hosts[0].host}:{elastic_settings.hosts[0].port}"
+    url = (f"{elastic_settings.hosts[0].scheme}://"
+           f"{elastic_settings.hosts[0].host}:{elastic_settings.hosts[0].port}")
 
     es = Elasticsearch(
         [url],
