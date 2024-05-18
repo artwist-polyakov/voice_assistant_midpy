@@ -1,4 +1,4 @@
-import sentry_sdk
+# import sentry_sdk
 import uvicorn
 from api import webhook
 from core.settings import get_settings
@@ -9,11 +9,10 @@ from middlewares.logging_middleware import LoggingMiddleware
 settings = get_settings()
 # Хранилище данных о сессиях.
 
-
-sentry_sdk.init(
-    dsn=settings.sentry_dsn,
-    enable_tracing=settings.sentry_enable_tracing,
-)
+# sentry_sdk.init(
+#     dsn=settings.sentry_dsn,
+#     enable_tracing=settings.sentry_enable_tracing,
+# )
 
 app = FastAPI(
     title=settings.api_name,

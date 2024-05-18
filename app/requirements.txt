@@ -3,5 +3,3 @@ orjson==3.9.12
 pydantic==2.5.3
 pydantic-settings==2.1.0
 uvicorn==0.12.2
-python-dotenv==1.0.0
-sentry-sdk[fastapi]==1.45.0
