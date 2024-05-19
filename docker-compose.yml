@@ -2,9 +2,9 @@ version: '3'
 
 services:
 
-  app:
-    container_name: app
-    build: ./app
+  alice:
+    container_name: alice
+    build: ./alice
     ports:
       - "5555:5555"
     env_file:
