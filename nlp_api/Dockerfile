@@ -8,4 +8,5 @@ RUN pip install -r requirements.txt
 
 COPY . .
 
-CMD ["uvicorn", "main:app", "--host",  "0.0.0.0", "--port", "5555"]
+RUN ["chmod", "+x", "entrypoint.sh"]
+ENTRYPOINT ["./entrypoint.sh"]
