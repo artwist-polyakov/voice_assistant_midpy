@@ -10,7 +10,7 @@ services:
     env_file:
       - .env
     volumes:
-      - ./logs:/logs:rw
+      - ./logs:/app/logs:rw
     restart: on-failure
 
   nginx:
