@@ -1,9 +1,9 @@
 import logging
 from http import HTTPStatus
-from fastapi import APIRouter, Depends, Query
-from fastapi.responses import JSONResponse
 
 from api.v1.models.requests.nlp_request import QuestionParam
+from fastapi import APIRouter, Depends
+from fastapi.responses import JSONResponse
 
 router = APIRouter()
 

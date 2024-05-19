@@ -1,12 +1,10 @@
 import sentry_sdk
 import uvicorn
-
 from api.v1 import questions
 from core.logger import LOGGING
-from fastapi import FastAPI, Request, status
-from fastapi.responses import ORJSONResponse
-
 from core.settings import get_settings
+from fastapi import FastAPI
+from fastapi.responses import ORJSONResponse
 from middlewares.logging_middleware import LoggingMiddleware
 
 settings = get_settings()
