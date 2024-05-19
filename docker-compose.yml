@@ -10,7 +10,20 @@ services:
     env_file:
       - .env
     volumes:
-      - ./logs:/logs:rw
+      - ./logs:/app/logs:rw
+    restart: on-failure
+
+  nlp-api:
+    container_name: nlp-api
+    build: ./nlp_api
+    ports:
+      - "5556:5556"
+    expose:
+      - "5556"
+    env_file:
+      - .env
+    volumes:
+      - ./logs:/app/logs:rw
     restart: on-failure
 
   nginx:
