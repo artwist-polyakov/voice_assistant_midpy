@@ -18,6 +18,9 @@ class Settings(BaseSettings):
     api_name: str = "NLP API"
     logging_level: str = "INFO"
 
+    yc_api_key: str = ...
+    openai_api_key: str = ...
+
     sentry_dsn: str = ...
     sentry_enable_tracing: bool = True
 
