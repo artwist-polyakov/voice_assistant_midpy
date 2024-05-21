@@ -1,6 +1,6 @@
 import logging
 from http import HTTPStatus
-
+import json
 from api.v1.models.requests.nlp_request import QuestionParam
 from fastapi import APIRouter, Depends
 from fastapi.responses import JSONResponse
@@ -22,7 +22,7 @@ es = Elasticsearch(
     verify_certs=False
 )
 
-llm = ChatOpenAI(model="gpt-3.5-turbo-0125", temperature=0, api_key=settings.openai_api_key)
+llm = ChatOpenAI(model="gpt-3.5-turbo-1106", temperature=0, api_key=settings.openai_api_key)
 
 
 prompt = ChatPromptTemplate.from_messages(
@@ -31,6 +31,7 @@ prompt = ChatPromptTemplate.from_messages(
             "system",
             """
             You are an assistant that converts natural language queries into Elasticsearch queries.
+            Translate request to English language.
             Elasticsearch has several indices with the following schemas:
 
             MOVIES_INDEX_SCHEMA:
@@ -80,11 +81,13 @@ async def ask_question(
                  f"external_session_id={external_session_id}, "
                  f"params={params.dict()}")
 
-    response = chain.invoke(params.text).json()
+    response = chain.invoke(params.text).dict()
+    logging.info(f"Response: \n{response}")
+    elasticsearch_query = json.loads(response['content'])
+    result = es.search(index='movies', body=elasticsearch_query)
+    logging.info(f"Result: \n{result}")
 
-    es.
 
-    logging.info(f"Response: \n{response.json()}")
     return JSONResponse(
         status_code=HTTPStatus.OK,
         content={'message': f'Question received: params={params.dict()}'}
