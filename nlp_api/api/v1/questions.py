@@ -1,3 +1,4 @@
+import json
 import logging
 from http import HTTPStatus
 from api.v1.models.requests.nlp_request import QuestionParam
@@ -19,18 +20,44 @@ es = Elasticsearch(
 
 template = """
 You are an assistant that converts natural language queries into Elasticsearch queries.
-Convert the following natural language query to an Elasticsearch query:
 
-Query: {query}
+Please translate any lanquage to english if needed. Write only the Elasticsearch query.
+Markdown is not needed. Additional information is not needed.
 
-Please translate any lanquage to english if needed. Write please only the Elasticsearch query.
+Elasticsearch has several indices with the following schemas:
 
-There are 3 indices: movies, genres and persons. Persons could be directors or actors.
+            MOVIES_INDEX_SCHEMA:
+            - id (keyword)
+            - imdb_rating (float)
+            - genres (nested, with fields: id (keyword), name (text, analyzer: ru_en), description (text, analyzer: ru_en))
+            - title (text, analyzer: ru_en, fields: raw (keyword))
+            - description (text, analyzer: ru_en)
+            - directors_names (text, analyzer: ru_en)
+            - actors_names (text, analyzer: ru_en)
+            - writers_names (text, analyzer: ru_en)
+            - actors (nested, with fields: id (keyword), name (text, analyzer: ru_en))
+            - writers (nested, with fields: id (keyword), name (text, analyzer: ru_en))
+            - directors (nested, with fields: id (keyword), name (text, analyzer: ru_en))
+
+            GENRES_INDEX_SCHEMA:
+            - id (keyword)
+            - name (text, analyzer: ru_en, fields: raw (keyword))
+            - description (text, analyzer: ru_en)
+
+            PERSONS_INDEX_SCHEMA:
+            - id (keyword)
+            - full_name (text, analyzer: ru_en, fields: raw (keyword))
+
+Convert the following natural language query to an Elasticsearch query (no need any additional information):
+{query}
+
+
 """
 
 prompt = PromptTemplate(template=template, input_variables=["query"])
 llm = YandexGPT(api_key=settings.yc_api_key,
-                model_uri="gpt://b1gsfbseql2uigg6q996/yandexgpt/latest")
+                model_uri="gpt://b1gsfbseql2uigg6q996/yandexgpt/latest",
+                temperature=0.1)
 llm_chain = LLMChain(llm=llm,prompt=prompt)
 
 
@@ -48,10 +75,11 @@ async def ask_question(
                  f"external_session_id={external_session_id}, "
                  f"params={params.dict()}")
     query = params.text
-    elasticsearch_query = llm_chain.invoke(query)
-    print("Elasticsearch query:", elasticsearch_query)
-    # response = es.search(index="movies", body=elasticsearch_query)
-    # print(response)
+    elasticsearch_query = llm_chain.invoke(query)['text'][3:-3].strip()
+    print(elasticsearch_query)
+    request = json.loads(elasticsearch_query)
+    response = es.search(index="movies", body=request)
+    print(response)
     return JSONResponse(
         status_code=HTTPStatus.OK,
         content={'message': f'Question received: params={params.dict()}'}
