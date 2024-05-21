@@ -20,6 +20,7 @@ class Settings(BaseSettings):
 
     sentry_dsn: str = ...
     sentry_enable_tracing: bool = True
+    openai_api_key: str = ...
 
     def get_logging_level(self) -> int:
         return log_levels.get(self.logging_level, logging.INFO)
