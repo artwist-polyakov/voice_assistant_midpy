@@ -1,11 +1,14 @@
 import logging
 
 from api.v1.models.request_model import RequestBody
+from core.settings import get_settings
 from fastapi import APIRouter
 from fastapi.responses import JSONResponse
+from utils.base_functions import get_response
 
 router = APIRouter()
 sessionStorage = {}
+settings = get_settings()
 
 
 @router.post("/")
@@ -25,15 +28,16 @@ async def main(request: RequestBody):
         }
     }
 
-    handle_dialog(request.dict(), response)
+    await handle_dialog(request.dict(), response)
 
     logging.info('Response: %r', response)
-    response['response']['text'] = "Привет от Саши! " + response['response']['text']
+    # response['response']['text'] = "Привет от Саши! " + response['response']['text']
     return JSONResponse(content=response)
 
 
-def handle_dialog(req, res):
+async def handle_dialog(req, res):
     user_id = req['session']['user_id']
+    session_id = req['session']['session_id']
 
     if req['session']['new']:
         # Это новый пользователь.
@@ -47,9 +51,17 @@ def handle_dialog(req, res):
             ]
         }
 
-        res['response']['text'] = 'Привет! Купи слона!'
+        # res['response']['text'] = 'Привет! Купи слона!'
+        res['response']['text'] = 'Привет! Расскажи, какое кино тебя интересует?'
         res['response']['buttons'] = get_suggests(user_id)
         return
+
+    text = req['request']['original_utterance'].lower()
+
+    result, status = await get_response(
+        settings.nlp_server + settings.nlp_post + '/' + settings.nlp_endpoint,
+        params={'external_user_id': user_id, 'external_session_id': session_id, 'text': text}
+    )
 
     # Обрабатываем ответ пользователя.
     if req['request']['original_utterance'].lower() in [
@@ -67,6 +79,12 @@ def handle_dialog(req, res):
         req['request']['original_utterance']
     )
     res['response']['buttons'] = get_suggests(user_id)
+
+    if status != 200:
+        res['response']['text'] = 'Ошибка сервера'
+        return
+
+    res['response']['text'] = result['result']
 
 
 def get_suggests(user_id):
