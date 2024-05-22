@@ -1,6 +1,6 @@
-from elasticsearch_dsl.query import Query, MultiMatch
 from db.llm.base_llm import BaseLLM
 from db.models.requests.base_request import BaseRequest
+from elasticsearch_dsl.query import MultiMatch, Query
 
 index_name = str
 

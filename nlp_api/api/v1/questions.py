@@ -2,10 +2,9 @@ import logging
 from http import HTTPStatus
 
 from api.v1.models.requests.nlp_request import QuestionParam
+from db.models.requests.search_request import SearchRequest
 from fastapi import APIRouter, Depends
 from fastapi.responses import JSONResponse
-
-from db.models.requests.search_request import SearchRequest
 from service.base_service import BaseService
 from service.dummy_service import get_dummy_service
 
@@ -38,7 +37,8 @@ async def ask_question(
         return JSONResponse(
             status_code=HTTPStatus.OK,
             content={
-                'result': f'Кажется вас заинтересует фильм "{film_name}" с рейтингом {film_rating}'}
+                'result': f'Кажется вас заинтересует фильм "{film_name}"'
+                          f' с рейтингом {film_rating}'}
         )
     return JSONResponse(
         status_code=HTTPStatus.INTERNAL_SERVER_ERROR,

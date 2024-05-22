@@ -1,4 +1,3 @@
-import logging
 from functools import lru_cache
 
 from db.llm.dummy_llm import DummyLLM

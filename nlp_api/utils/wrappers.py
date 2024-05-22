@@ -1,8 +1,8 @@
+import asyncio
 import logging
 import random
 import time
 from functools import wraps
-import asyncio
 
 from db.cache.base_cache import BaseCache
 
