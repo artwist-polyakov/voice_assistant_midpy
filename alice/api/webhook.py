@@ -1,12 +1,10 @@
 import logging
 
 from api.v1.models.request_model import RequestBody
+from core.settings import get_settings
 from fastapi import APIRouter
 from fastapi.responses import JSONResponse
-
 from utils.base_functions import get_response
-
-from core.settings import get_settings
 
 router = APIRouter()
 sessionStorage = {}
