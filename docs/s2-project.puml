@@ -33,7 +33,7 @@ package NLPApi {
     [NLP API]
 }
 
-package VoiceRecognitionPipeline {
+package RequestRecognitionPipeline {
     queue SubjectQueue
     queue PersonFilterQueue
     queue RatingOrderQueue
