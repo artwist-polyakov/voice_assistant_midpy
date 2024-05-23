@@ -1,5 +1,5 @@
 fastapi==0.109.0
-orjson==3.9.12
+orjson==3.9.14
 pydantic==2.5.3
 pydantic-settings==2.1.0
 uvicorn==0.12.2
@@ -7,3 +7,6 @@ redis==5.0.1
 elasticsearch[async]==8.13.1
 elasticsearch-dsl==8.13.1
 sentry-sdk[fastapi]==1.45.0
+yandexcloud==0.282.0
+langchain==0.2.0
+langchain_community==0.2.0
