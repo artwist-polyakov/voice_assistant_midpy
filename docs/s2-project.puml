@@ -25,22 +25,52 @@ package Cache {
     database CacheStorage
 }
 
-package Enriching {
-    queue TranslateQueue
-}
-
 package  Notifications {
     [IsAvailable]
 }
 
+package NLPApi {
+    [NLP API]
+}
+
+package VoiceRecognitionPipeline {
+    queue SubjectQueue
+    queue PersonFilterQueue
+    queue RatingOrderQueue
+    queue GenreFilterQueue
+    queue DateFilterQueue
+    database ResultsStorage
+    [SubjectWorker]
+    [PersonFilterWorker]
+    [RatingOrderWorker]
+    [GenreFilterWorker]
+    [DateFilterWorker]
+}
+
 VoiceInterface --down--> [API Gateway] : voice command
+[API Gateway] --> [NLP API] : parse command
+[NLP API] --> SubjectQueue : process command
+[NLP API] --> PersonFilterQueue : process command
+[NLP API] --> RatingOrderQueue : process command
+[NLP API] --> GenreFilterQueue : process command
+[NLP API] --> DateFilterQueue : process command
+SubjectQueue --> [SubjectWorker] : process command
+PersonFilterQueue --> [PersonFilterWorker] : process command
+RatingOrderQueue --> [RatingOrderWorker] : process command
+GenreFilterQueue --> [GenreFilterWorker] : process command
+DateFilterQueue --> [DateFilterWorker] : process command
+[SubjectWorker] --> ResultsStorage : store results
+[PersonFilterWorker] --> ResultsStorage : store results
+[RatingOrderWorker] --> ResultsStorage : store results
+[GenreFilterWorker] --> ResultsStorage : store results
+[DateFilterWorker] --> ResultsStorage : store results
+ResultsStorage --> [API Gateway] : return results
 
 [API Gateway] -left-> CacheStorage : get context from cache
 
 [API Gateway] -right-> SearchStorage : get data from storage
 
-[Data ETL]  --down-> TranslateQueue
-TranslateQueue -down-> SearchStorage
+[Data ETL]  --down-> SearchStorage
 
 [API Gateway] --> [IsAvailable] : degradation
 
