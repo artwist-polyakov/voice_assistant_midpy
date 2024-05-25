@@ -9,6 +9,14 @@
 ```bash
 openssl dhparam -out ssl-dhparams.pem 2048
 ```
+5. Настройте отображение логов в Kibana:
+
+http://localhost:5601/app/management/kibana/dataViews
+
+или
+
+http://practix-cinema.ru:5601/app/management/kibana/dataViews
+
 
 ## Проект в интернете
 
