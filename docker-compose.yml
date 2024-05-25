@@ -123,6 +123,19 @@ services:
     depends_on:
       - elasticsearch
 
+  filebeat:
+    container_name: filebeat
+    image: elastic/filebeat:${STACK_VERSION}
+    command: filebeat -e -strict.perms=false
+    platform: linux/amd64
+    volumes:
+      - ./configs/filebeat/config.yml:/usr/share/filebeat/filebeat.yml:ro
+      - ./logs:/logs:ro
+    env_file:
+      - .env
+    depends_on:
+      - elasticsearch
+
 volumes:
     static_volume:
     media_volume:
