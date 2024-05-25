@@ -41,6 +41,7 @@ services:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf
       - ./nginx/conf.d:/etc/nginx/conf.d
       - ./.certs:/etc/ssl:ro
+      - ./nginx/passwords/passwords:/etc/nginx/passwords:ro
 
   etl-elasticsearch:
     container_name: etl-elasticsearch
