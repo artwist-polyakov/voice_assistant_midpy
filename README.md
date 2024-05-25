@@ -9,6 +9,16 @@
 ```bash
 openssl dhparam -out ssl-dhparams.pem 2048
 ```
+
+6. Чтобы добавить пользователя для кибана используем команду:
+```bash
+htpasswd -c ./nginx/passwords/passwords user1
+```
+чтобы добавить больше пользователей используем команду без `-c`:
+```bash
+htpasswd ./nginx/passwords/passwords user2
+```
+
 5. Настройте отображение логов в Kibana:
 
 http://localhost:5601/app/management/kibana/dataViews
