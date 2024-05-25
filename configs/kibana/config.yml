@@ -2,6 +2,8 @@ server.name: kibana
 server.host: ${KIBANA_PUBLIC_HOST}
 server.publicBaseUrl: ${KIBANA_PUBLIC_URL}
 monitoring.ui.container.elasticsearch.enabled: true # Для корректного сбора метрик с elastic search, запущенного в контейнере
+server.basePath: "/kibana"
+server.rewriteBasePath: true
 
 elasticsearch.hosts:
   - ${ES_URL}
