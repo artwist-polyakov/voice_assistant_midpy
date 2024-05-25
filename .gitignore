@@ -168,3 +168,4 @@ localhost.*
 .certs/*.key
 .certs/*.crt
 .certs/*.pem
+nginx/passwords/passwords
