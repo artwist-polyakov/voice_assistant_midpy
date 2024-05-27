@@ -137,6 +137,41 @@ services:
     depends_on:
       - elasticsearch
 
+  rabbitmq:
+    container_name: rabbitmq
+    image: rabbitmq:${RABBIT_MQ_VERSION}-management-alpine
+    ports:
+      - ${RABBIT_MQ_PORTS}
+      - ${RABBIT_MQ_AMQP_PORTS}
+    expose:
+      - ${RABBIT_MQ_PORT}
+    hostname: ${RABBIT_MQ_HOST}
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBIT_MQ_USER}
+      RABBITMQ_DEFAULT_PASS: ${RABBIT_MQ_PASSWORD}
+    restart: on-failure
+
+  rabbitmq-init:
+    container_name: rabbitmq-init
+    image: rabbitmq:${RABBIT_MQ_VERSION}-management
+    volumes:
+      - ./rabbitmq/init.sh:/scripts/init.sh
+    entrypoint: [ "bash", "/scripts/init.sh" ]
+    environment:
+      RABBIT_MQ_HOST: ${RABBIT_MQ_HOST}
+      RABBIT_MQ_PORT: ${RABBIT_MQ_PORT}
+      RABBIT_MQ_SUBJECT_QUEUE: ${RABBIT_MQ_SUBJECT_QUEUE}
+      RABBIT_MQ_PERSON_QUEUE: ${RABBIT_MQ_PERSON_QUEUE}
+      RABBIT_MQ_RATING_ORDER_QUEUE: ${RABBIT_MQ_RATING_ORDER_QUEUE}
+      RABBIT_MQ_GENRE_FILTER_QUEUE: ${RABBIT_MQ_GENRE_FILTER_QUEUE}
+      RABBIT_MQ_EXCHANGE: ${RABBIT_MQ_EXCHANGE}
+      RABBIT_MQ_DATE_FILTER_QUEUE: ${RABBIT_MQ_DATE_FILTER_QUEUE}
+      RABBIT_MQ_TITLE_TEXT_QUEUE: ${RABBIT_MQ_TITLE_TEXT_QUEUE}
+      RABBIT_MQ_DESCRIPTION_TEXT_QUEUE: ${RABBIT_MQ_DESCRIPTION_TEXT_QUEUE}
+    depends_on:
+      - rabbitmq
+    restart: on-failure
+
 volumes:
     static_volume:
     media_volume:
