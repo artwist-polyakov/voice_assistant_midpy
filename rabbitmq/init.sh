@@ -30,6 +30,6 @@ rabbitmqadmin -H ${RABBIT_MQ_HOST} -P ${RABBIT_MQ_PORT} declare queue name=${RAB
 rabbitmqadmin -H ${RABBIT_MQ_HOST} -P ${RABBIT_MQ_PORT} declare queue name=${RABBIT_MQ_GENRE_FILTER_QUEUE} durable=true
 rabbitmqadmin -H ${RABBIT_MQ_HOST} -P ${RABBIT_MQ_PORT} declare queue name=${RABBIT_MQ_DATE_FILTER_QUEUE} durable=true
 rabbitmqadmin -H ${RABBIT_MQ_HOST} -P ${RABBIT_MQ_PORT} declare queue name=${RABBIT_MQ_TITLE_TEXT_QUEUE} durable=true
-rabbitmqadmin -H ${RABBIT_MQ_HOST} -P ${RABBIT_MQ_PORT} declare queue name=${ABBIT_MQ_DESCRIPTION_TEXT_QUEUE} durable=true
+rabbitmqadmin -H ${RABBIT_MQ_HOST} -P ${RABBIT_MQ_PORT} declare queue name=${RABBIT_MQ_DESCRIPTION_TEXT_QUEUE} durable=true
 
 echo "Initialization completed"
