@@ -2,7 +2,7 @@ import logging
 from functools import lru_cache
 
 from core.logging_setup import setup_root_logger
-from pydantic_settings import BaseSettings
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 log_levels = {
     'DEBUG': logging.DEBUG,
@@ -47,6 +47,23 @@ class ElasticSettings(BaseSettings):
     retry_on_timeout: bool = True
 
 
+class RabbitSettings(BaseSettings):
+    """Настройки Rabbit."""
+
+    model_config = SettingsConfigDict(env_prefix="rabbit_mq_")
+    host: str
+    port: int
+    amqp_port: int
+    user: str
+    password: str
+    exchange: str
+
+
 @lru_cache
 def get_settings():
     return settings
+
+
+@lru_cache
+def get_rabbit_settings():
+    return RabbitSettings()

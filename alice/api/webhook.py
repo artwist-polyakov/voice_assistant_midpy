@@ -38,6 +38,7 @@ async def main(request: RequestBody):
 async def handle_dialog(req, res):
     user_id = req['session']['user_id']
     session_id = req['session']['session_id']
+    message_id = req['session']['message_id']
 
     if req['session']['new']:
         # Это новый пользователь.
@@ -59,8 +60,15 @@ async def handle_dialog(req, res):
     text = req['request']['original_utterance'].lower()
 
     result, status = await get_response(
-        'http://' + settings.nlp_server + ':' + str(settings.nlp_port) + '/' + settings.nlp_endpoint,
-        params={'external_user_id': user_id, 'external_session_id': session_id, 'text': text}
+        'http://' +
+        settings.nlp_server + ':' +
+        str(settings.nlp_port) + '/' +
+        settings.nlp_endpoint,
+        params={
+            'external_user_id': user_id,
+            'external_session_id': session_id,
+            'external_message_id': message_id,
+            'text': text}
     )
 
     # Обрабатываем ответ пользователя.
