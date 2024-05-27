@@ -60,11 +60,14 @@ async def handle_dialog(req, res):
     text = req['request']['original_utterance'].lower()
 
     result, status = await get_response(
-        'http://' + settings.nlp_server + ':' + str(settings.nlp_port) + '/' + settings.nlp_endpoint,
+        'http://' +
+        settings.nlp_server + ':' +
+        str(settings.nlp_port) + '/' +
+        settings.nlp_endpoint,
         params={
             'external_user_id': user_id,
             'external_session_id': session_id,
-            'external_message_id':message_id,
+            'external_message_id': message_id,
             'text': text}
     )
 

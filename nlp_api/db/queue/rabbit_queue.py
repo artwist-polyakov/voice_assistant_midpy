@@ -1,7 +1,6 @@
 from typing import Any, Callable
 
 import pika
-
 from core.settings import get_rabbit_settings
 from db.models.requests.search_request import SearchRequest
 from db.queue.base_queue import BaseQueue

@@ -6,7 +6,7 @@ from db.models.requests.search_request import SearchRequest
 from fastapi import APIRouter, Depends
 from fastapi.responses import JSONResponse
 from service.base_service import BaseService
-from service.dummy_service import get_dummy_service, get_queue_service
+from service.dummy_service import get_queue_service
 
 router = APIRouter()
 

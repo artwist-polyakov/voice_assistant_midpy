@@ -1,8 +1,7 @@
 from abc import ABC, abstractmethod
 
-from elasticsearch_dsl.query import Query
-
 from db.models.requests.search_request import SearchRequest
+from elasticsearch_dsl.query import Query
 
 
 class BaseLLM(ABC):

@@ -1,11 +1,8 @@
-import logging
 
 from db.llm.base_llm import BaseLLM
-from db.models.requests.base_request import BaseRequest
-from elasticsearch_dsl.query import MultiMatch, Query
-
 from db.models.requests.search_request import SearchRequest
 from db.queue.rabbit_queue import RabbitQueue
+from elasticsearch_dsl.query import MultiMatch, Query
 
 index_name = str
 
