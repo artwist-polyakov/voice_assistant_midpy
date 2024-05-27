@@ -2,15 +2,14 @@
 
 export RABBIT_MQ_HOST=${RABBIT_MQ_HOST:-"localhost"}
 export RABBIT_MQ_PORT=${RABBIT_MQ_PORT:-5672}
-export RABBIT_MQ_TASKS_KEY=${RABBIT_MQ_TASKS_KEY:-"_tasks"}
-export RABBIT_MQ_NOTIFICATIONS_KEY=${RABBIT_MQ_NOTIFICATIONS_KEY:-"_notifications"}
-export RABBIT_MQ_ENRICHED_KEY=${RABBIT_MQ_ENRICHED_KEY:-"_enriched"}
-export RABBIT_MQ_TO_SENDING_KEY=${RABBIT_MQ_TO_SENDING_KEY:-"_to_sending"}
+export RABBIT_MQ_SUBJECT_QUEUE=${RABBIT_MQ_SUBJECT_QUEUE:-"_subject"}
+export RABBIT_MQ_PERSON_QUEUE=${RABBIT_MQ_PERSON_QUEUE:-"_persons"}
+export RABBIT_MQ_RATING_ORDER_QUEUE=${RABBIT_MQ_RATING_ORDER_QUEUE:-"_rating"}
+export RABBIT_MQ_GENRE_FILTER_QUEUE=${RABBIT_MQ_GENRE_FILTER_QUEUE:-"_genre"}
 export RABBIT_MQ_EXCHANGE=${RABBIT_MQ_EXCHANGE:-"_my_exchange"}
-export RABBIT_MQ_TASKS_QUEUE=${RABBIT_MQ_TASKS_QUEUE:-"_TasksQueue"}
-export RABBIT_MQ_NOTIFICATIONS_QUEUE=${RABBIT_MQ_NOTIFICATIONS_QUEUE:-"_NotificationsQueue"}
-export RABBIT_MQ_ENRICHED_QUEUE=${RABBIT_MQ_ENRICHED_QUEUE:-"_EnrichedQueue"}
-export RABBIT_MQ_TO_SENDING_QUEUE=${RABBIT_MQ_TO_SENDING_QUEUE:-"_ToSendingQueue"}
+export RABBIT_MQ_DATE_FILTER_QUEUE=${RABBIT_MQ_DATE_FILTER_QUEUE:-"_date"}
+export RABBIT_MQ_TITLE_TEXT_QUEUE=${RABBIT_MQ_TITLE_TEXT_QUEUE:-"_title"}
+export RABBIT_MQ_DESCRIPTION_TEXT_QUEUE=${RABBIT_MQ_DESCRIPTION_TEXT_QUEUE:-"_description"}
 
 #waiting for rabbitmq-server to start
 set -e
@@ -23,17 +22,14 @@ done
 
 #executing command
 
-rabbitmqadmin -H ${RABBIT_MQ_HOST} -P ${RABBIT_MQ_PORT} declare exchange name=${RABBIT_MQ_EXCHANGE} type=direct
+rabbitmqadmin -H ${RABBIT_MQ_HOST} -P ${RABBIT_MQ_PORT} declare exchange name=${RABBIT_MQ_EXCHANGE} type=fanout
 
-rabbitmqadmin -H ${RABBIT_MQ_HOST} -P ${RABBIT_MQ_PORT} declare queue name=${RABBIT_MQ_TASKS_QUEUE} durable=true
-rabbitmqadmin -H ${RABBIT_MQ_HOST} -P ${RABBIT_MQ_PORT} declare queue name=${RABBIT_MQ_NOTIFICATIONS_QUEUE} durable=true
-rabbitmqadmin -H ${RABBIT_MQ_HOST} -P ${RABBIT_MQ_PORT} declare queue name=${RABBIT_MQ_ENRICHED_QUEUE} durable=true
-rabbitmqadmin -H ${RABBIT_MQ_HOST} -P ${RABBIT_MQ_PORT} declare queue name=${RABBIT_MQ_TO_SENDING_QUEUE} durable=true
-
-rabbitmqadmin -H ${RABBIT_MQ_HOST} -P ${RABBIT_MQ_PORT} declare binding source=${RABBIT_MQ_EXCHANGE} destination_type=queue destination=${RABBIT_MQ_TASKS_QUEUE} routing_key=${RABBIT_MQ_TASKS_KEY}
-rabbitmqadmin -H ${RABBIT_MQ_HOST} -P ${RABBIT_MQ_PORT} declare binding source=${RABBIT_MQ_EXCHANGE} destination_type=queue destination=${RABBIT_MQ_NOTIFICATIONS_QUEUE} routing_key=${RABBIT_MQ_NOTIFICATIONS_KEY}
-rabbitmqadmin -H ${RABBIT_MQ_HOST} -P ${RABBIT_MQ_PORT} declare binding source=${RABBIT_MQ_EXCHANGE} destination_type=queue destination=${RABBIT_MQ_ENRICHED_QUEUE} routing_key=${RABBIT_MQ_ENRICHED_KEY}
-rabbitmqadmin -H ${RABBIT_MQ_HOST} -P ${RABBIT_MQ_PORT} declare binding source=${RABBIT_MQ_EXCHANGE} destination_type=queue destination=${RABBIT_MQ_TO_SENDING_QUEUE} routing_key=${RABBIT_MQ_TO_SENDING_KEY}
-
+rabbitmqadmin -H ${RABBIT_MQ_HOST} -P ${RABBIT_MQ_PORT} declare queue name=${RABBIT_MQ_SUBJECT_QUEUE} durable=true
+rabbitmqadmin -H ${RABBIT_MQ_HOST} -P ${RABBIT_MQ_PORT} declare queue name=${RABBIT_MQ_PERSON_QUEUE} durable=true
+rabbitmqadmin -H ${RABBIT_MQ_HOST} -P ${RABBIT_MQ_PORT} declare queue name=${RABBIT_MQ_RATING_ORDER_QUEUE} durable=true
+rabbitmqadmin -H ${RABBIT_MQ_HOST} -P ${RABBIT_MQ_PORT} declare queue name=${RABBIT_MQ_GENRE_FILTER_QUEUE} durable=true
+rabbitmqadmin -H ${RABBIT_MQ_HOST} -P ${RABBIT_MQ_PORT} declare queue name=${RABBIT_MQ_DATE_FILTER_QUEUE} durable=true
+rabbitmqadmin -H ${RABBIT_MQ_HOST} -P ${RABBIT_MQ_PORT} declare queue name=${RABBIT_MQ_TITLE_TEXT_QUEUE} durable=true
+rabbitmqadmin -H ${RABBIT_MQ_HOST} -P ${RABBIT_MQ_PORT} declare queue name=${ABBIT_MQ_DESCRIPTION_TEXT_QUEUE} durable=true
 
 echo "Initialization completed"
