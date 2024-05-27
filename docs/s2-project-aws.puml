@@ -1,0 +1,58 @@
+@startuml
+
+title
+<b>Movies voice assistant pipeline</b>
+end title
+
+package Users {
+    actor VoiceInterface
+
+}
+
+package ETL {
+    [Data ETL]
+}
+
+package API {
+    [API Gateway]
+}
+
+package Storage {
+   database SearchStorage
+}
+
+package Cache {
+    database CacheStorage
+}
+
+package  Notifications {
+    [IsAvailable]
+}
+
+package NLPApi {
+    [NLP API]
+    [ResultAPI]
+    database ResultsStorage
+}
+
+package AWS {
+    [ClaudeLambda]
+}
+
+VoiceInterface --down--> [API Gateway] : voice command
+[API Gateway] -up-> [NLP API] : parse command
+[NLP API] --up-> [ClaudeLambda] : process command
+[ClaudeLambda] --down-> [ResultAPI] : get results
+[ResultAPI] -right-> ResultsStorage : store results
+
+ResultsStorage -right-> [NLP API] : return results
+[NLP API] --> [API Gateway] : return results
+[API Gateway] -down-> CacheStorage : get context from cache
+
+[API Gateway] -down-> SearchStorage : get data from storage
+
+[Data ETL]  --down-> SearchStorage
+
+[API Gateway] --> [IsAvailable] : degradation
+
+@enduml
