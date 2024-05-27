@@ -1,6 +1,7 @@
 from functools import lru_cache
 
 from db.llm.dummy_llm import DummyLLM
+from db.llm.queue_llm import QueueLLM
 from db.models.requests.search_request import SearchRequest
 from db.search.elastic_search import ElasticSearch
 from service.base_service import BaseService
@@ -15,4 +16,10 @@ class DummyService(BaseService):
 @lru_cache
 def get_dummy_service() -> BaseService:
     search = ElasticSearch(DummyLLM())
+    return DummyService(search)
+
+
+@lru_cache
+def get_queue_service() -> BaseService:
+    search = ElasticSearch(QueueLLM())
     return DummyService(search)
