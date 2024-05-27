@@ -6,7 +6,7 @@ from db.models.requests.search_request import SearchRequest
 from fastapi import APIRouter, Depends
 from fastapi.responses import JSONResponse
 from service.base_service import BaseService
-from service.dummy_service import get_dummy_service
+from service.dummy_service import get_dummy_service, get_queue_service
 
 router = APIRouter()
 
@@ -19,15 +19,18 @@ router = APIRouter()
 async def ask_question(
         external_user_id: str,
         external_session_id: str,
+        external_message_id: str,
         params: QuestionParam = Depends(),
-        search_service: BaseService = Depends(get_dummy_service)
+        search_service: BaseService = Depends(get_queue_service)
 ) -> JSONResponse:
     logging.info(f"Question received: external_user_id={external_user_id}, "
                  f"external_session_id={external_session_id}, "
+                 f"external_message_id={external_message_id}, "
                  f"params={params.model_dump()}")
     result = await search_service.proceed_request(SearchRequest(
         external_user_id=external_user_id,
         external_session_id=external_session_id,
+        external_message_id=external_message_id,
         query=params.text
     ))
     logging.info(f"Result: {result}")
