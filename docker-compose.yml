@@ -239,6 +239,28 @@ services:
       - rabbitmq
     restart: always
 
+  worker-rating-1:
+    container_name: worker-rating-1
+    build: ./worker-rating
+    env_file:
+      - .env
+    volumes:
+      - ./logs:/app/logs:rw
+    depends_on:
+      - rabbitmq
+    restart: always
+
+  worker-rating-2:
+    container_name: worker-rating-2
+    build: ./worker-rating
+    env_file:
+      - .env
+    volumes:
+      - ./logs:/app/logs:rw
+    depends_on:
+      - rabbitmq
+    restart: always
+
 volumes:
     static_volume:
     media_volume:
