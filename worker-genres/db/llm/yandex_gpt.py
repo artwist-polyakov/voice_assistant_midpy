@@ -25,8 +25,7 @@ class YandexGPTLLM(LLMProcessor):
 Ответ: "Romance, Music"
 Запрос: "какие фильмы сейчас популярны"
 Ответ: "none"
-"""
-  # noqa: E501
+"""  # noqa: E501
         super().__init__(
             prompt_template=template,
             max_tokens=20,
