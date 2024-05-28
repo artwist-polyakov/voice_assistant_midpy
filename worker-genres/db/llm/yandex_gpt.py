@@ -34,7 +34,7 @@ class YandexGPTLLM(LLMProcessor):
 
         self._llm = YandexGPT(
             api_key=self._settings.yc_api_key,
-            model_uri="gpt://b1gsfbseql2uigg6q996/yandexgpt/latest",
+            model_uri=self._settings.ya_gpt_model,
             max_tokens=self._max_tokens,
             temperature=self._temperature,
             top_p=self._top_p
