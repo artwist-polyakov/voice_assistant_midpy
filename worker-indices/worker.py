@@ -35,6 +35,7 @@ def handler(
         result = llm.process_query(data.query)
         logger.info(f"({time.time()-start_time}sec)\nResult | indice_parcer | {result}")
         redis_cli.put_cache(properties.headers['Task-Id'] + '_index', result if result else "None")
+        ch.basic_ack(delivery_tag=method.delivery_tag)
     except Exception as e:
         logging.error(f"Error in callback: {e}")
 
