@@ -30,10 +30,10 @@ def handler(
 ):
     try:
         data = SearchRequest(**ast.literal_eval(body.decode()))
-        logger.info(f"Processing | director_parcer | {data}")
+        logger.info(f"Processing | director_parser | {data}")
         start_time = time.time()
         result = llm.process_query(data.query)
-        logger.info(f"({time.time()-start_time}sec)\nResult | director_parcer | {result}")
+        logger.info(f"({time.time()-start_time}sec)\nResult | director_parser | {result}")
         redis_cli.put_cache(
             properties.headers['Task-Id'] + '_director',
             result if result else "None"
