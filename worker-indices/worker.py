@@ -10,7 +10,7 @@ from models.search_request import SearchRequest
 from pika.channel import Channel
 from pika.spec import Basic, BasicProperties
 
-logger = logging.getLogger('creating-worker-logger')
+logger = logging.getLogger('indices-worker-logger')
 logger.setLevel(logging.INFO)
 logger.addHandler(logging.StreamHandler())
 
