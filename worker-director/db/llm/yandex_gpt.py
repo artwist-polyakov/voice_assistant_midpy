@@ -21,7 +21,7 @@ class YandexGPTLLM(LLMProcessor):
 Примеры:
 Запрос: "фильмы режиссера Квентина Тарантино и Джеймса Кэмерона"
 Ответ: "Quentin Tarantino, James Cameron"
-""" # noqa: E501
+"""  # noqa: E501
         super().__init__(
             prompt_template=template,
             max_tokens=20,
