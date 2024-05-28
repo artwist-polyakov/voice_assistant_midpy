@@ -172,6 +172,28 @@ services:
       - rabbitmq
     restart: on-failure
 
+  worker-indices-1:
+    container_name: worker-indices-1
+    build: ./worker-indices
+    env_file:
+      - .env
+    volumes:
+      - ./logs:/app/logs:rw
+    depends_on:
+      - rabbitmq
+    restart: always
+
+  worker-indices-2:
+    container_name: worker-indices-2
+    build: ./worker-indices
+    env_file:
+      - .env
+    volumes:
+      - ./logs:/app/logs:rw
+    depends_on:
+      - rabbitmq
+    restart: always
+
 volumes:
     static_volume:
     media_volume:
