@@ -12,11 +12,18 @@ class YandexGPTLLM(LLMProcessor):
 
     def __init__(self):
         template: str = """
-        Определи с поиском чего связан следущий запрос: поиск фильмов, поиск жанров или поиск персон.
-        Запрос: {query}
-        Если ты сомневаешься — отвечай none.
-        У тебя есть 4 варианта ответа: movies, genres, persons, none. Ответь, пожалуйста, одним словом.
-        """  # noqa: E501
+Определи содержится ли в данном запросе уточнение по дате выхода фильма
+Запрос: {query}
+Если ты сомневаешься — отвечай none.
+Отвечай в формате: gte:2020-01-01, lte:2021-01-01, lte:now или none
+Примеры:
+Запрос: новинки кинопроката
+Ответ: lte:now
+Запрос: Фильмы Тарантино после 1990 года
+Ответ: gte:1990-01-01
+Запрос: Фильмы про войну
+Ответ: none
+"""  # noqa: E501
         super().__init__(
             prompt_template=template,
             max_tokens=20,
@@ -38,10 +45,4 @@ class YandexGPTLLM(LLMProcessor):
         logging.info(f'answer is {answer}')
         if 'none' in answer:
             return None
-        if 'movies' in answer:
-            return 'movies'
-        if 'genres' in answer:
-            return 'genres'
-        if 'persons' in answer:
-            return 'persons'
-        return None
+        return answer
