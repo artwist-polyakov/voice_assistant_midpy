@@ -283,6 +283,28 @@ services:
       - rabbitmq
     restart: always
 
+  worker-date-1:
+    container_name: worker-date-1
+    build: ./worker-date
+    env_file:
+      - .env
+    volumes:
+      - ./logs:/app/logs:rw
+    depends_on:
+      - rabbitmq
+    restart: always
+
+  worker-date-2:
+    container_name: worker-date-2
+    build: ./worker-date
+    env_file:
+      - .env
+    volumes:
+      - ./logs:/app/logs:rw
+    depends_on:
+      - rabbitmq
+    restart: always
+
 volumes:
     static_volume:
     media_volume:

@@ -44,7 +44,7 @@ class RabbitSettings(BaseSettings):
     user: str
     password: str
     exchange: str
-    rating_order_queue: str
+    date_filter_queue: str
 
 
 settings = Settings()
