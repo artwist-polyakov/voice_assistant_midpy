@@ -1,7 +1,7 @@
 from typing import Callable, TypeVar
 
 import pika
-from queue.base_queue import BaseQueue
+from db.queues.base_queue import BaseQueue
 
 from core.settings import get_rabbit_settings
 
@@ -32,19 +32,8 @@ class RabbitQueue(BaseQueue):
     def __exit__(self, exc_type, exc_value, traceback):
         self.connection.close()
 
-    def push(self, message: T, session=None) -> bool:
-        with self:
-            self.channel.confirm_delivery()
-            properties = pika.BasicProperties(
-                delivery_mode=2,
-                headers={"Notification-Id": str(message.id)}
-            )
-            self.channel.basic_publish(
-                exchange=get_rabbit_settings().exchange,
-                routing_key=self._key,
-                body=str(message.model_dump()),
-                properties=properties
-            )
+    def push(self, message: T, session=None):
+        pass
 
     def pop(self,
             handler: Callable[
