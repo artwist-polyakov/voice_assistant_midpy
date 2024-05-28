@@ -15,7 +15,7 @@ logger.setLevel(logging.INFO)
 logger.addHandler(logging.StreamHandler())
 
 rabbitmq_indices = RabbitQueue(
-    get_rabbit_settings().subject_queue
+    get_rabbit_settings().director_queue
 )
 
 llm = YandexGPTLLM()
@@ -30,11 +30,14 @@ def handler(
 ):
     try:
         data = SearchRequest(**ast.literal_eval(body.decode()))
-        logger.info(f"Processing | indice_parcer | {data}")
+        logger.info(f"Processing | director_parcer | {data}")
         start_time = time.time()
         result = llm.process_query(data.query)
-        logger.info(f"({time.time()-start_time}sec)\nResult | indice_parcer | {result}")
-        redis_cli.put_cache(properties.headers['Task-Id'] + '_index', result if result else "None")
+        logger.info(f"({time.time()-start_time}sec)\nResult | director_parcer | {result}")
+        redis_cli.put_cache(
+            properties.headers['Task-Id'] + '_director',
+            result if result else "None"
+        )
         ch.basic_ack(delivery_tag=method.delivery_tag)
     except Exception as e:
         logging.error(f"Error in callback: {e}")
