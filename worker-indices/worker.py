@@ -30,10 +30,10 @@ def handler(
 ):
     try:
         data = SearchRequest(**ast.literal_eval(body.decode()))
-        logger.info(f"Processing | indice_parcer | {data}")
+        logger.info(f"Processing | index_parser | {data}")
         start_time = time.time()
         result = llm.process_query(data.query)
-        logger.info(f"({time.time()-start_time}sec)\nResult | indice_parcer | {result}")
+        logger.info(f"({time.time()-start_time}sec)\nResult | index_parser | {result}")
         redis_cli.put_cache(properties.headers['Task-Id'] + '_index', result if result else "None")
         ch.basic_ack(delivery_tag=method.delivery_tag)
     except Exception as e:

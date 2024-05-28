@@ -10,12 +10,12 @@ from models.search_request import SearchRequest
 from pika.channel import Channel
 from pika.spec import Basic, BasicProperties
 
-logger = logging.getLogger('directors-worker-logger')
+logger = logging.getLogger('genre-worker-logger')
 logger.setLevel(logging.INFO)
 logger.addHandler(logging.StreamHandler())
 
 rabbitmq_indices = RabbitQueue(
-    get_rabbit_settings().director_queue
+    get_rabbit_settings().genre_filter_queue
 )
 
 llm = YandexGPTLLM()
@@ -30,12 +30,12 @@ def handler(
 ):
     try:
         data = SearchRequest(**ast.literal_eval(body.decode()))
-        logger.info(f"Processing | director_parser | {data}")
+        logger.info(f"Processing | genre_parser | {data}")
         start_time = time.time()
         result = llm.process_query(data.query)
-        logger.info(f"({time.time()-start_time}sec)\nResult | director_parser | {result}")
+        logger.info(f"({time.time()-start_time}sec)\nResult | genre_parser | {result}")
         redis_cli.put_cache(
-            properties.headers['Task-Id'] + '_director',
+            properties.headers['Task-Id'] + '_genre',
             result if result else "None"
         )
         ch.basic_ack(delivery_tag=method.delivery_tag)
