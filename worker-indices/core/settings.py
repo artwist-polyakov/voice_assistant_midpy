@@ -24,10 +24,6 @@ class Settings(BaseSettings):
     elastic_host: str = ...
     elastic_port: int = 9200
 
-    redis_host: str = ...
-    redis_port: int = ...
-    redis_db: int = 0
-
     def get_logging_level(self) -> int:
         return log_levels.get(self.logging_level, logging.INFO)
 
