@@ -261,6 +261,28 @@ services:
       - rabbitmq
     restart: always
 
+  worker-genre-1:
+    container_name: worker-genre-1
+    build: ./worker-genres
+    env_file:
+      - .env
+    volumes:
+      - ./logs:/app/logs:rw
+    depends_on:
+      - rabbitmq
+    restart: always
+
+  worker-genre-2:
+    container_name: worker-genre-2
+    build: ./worker-genres
+    env_file:
+      - .env
+    volumes:
+      - ./logs:/app/logs:rw
+    depends_on:
+      - rabbitmq
+    restart: always
+
 volumes:
     static_volume:
     media_volume:

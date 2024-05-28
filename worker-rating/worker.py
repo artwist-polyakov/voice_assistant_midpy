@@ -30,10 +30,10 @@ def handler(
 ):
     try:
         data = SearchRequest(**ast.literal_eval(body.decode()))
-        logger.info(f"Processing | rating_parcer | {data}")
+        logger.info(f"Processing | rating_parser | {data}")
         start_time = time.time()
         result = llm.process_query(data.query)
-        logger.info(f"({time.time()-start_time}sec)\nResult | rating_parcer | {result}")
+        logger.info(f"({time.time()-start_time}sec)\nResult | rating_parser | {result}")
         redis_cli.put_cache(
             properties.headers['Task-Id'] + '_rating',
             result if result else "None"
