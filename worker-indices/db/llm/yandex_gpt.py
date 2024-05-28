@@ -34,7 +34,7 @@ class YandexGPTLLM(LLMProcessor):
         self._llm_chain = self._prompt_template | self._llm
 
     def process_query(self, message: str) -> str | None:
-        answer = self._llm_chain.invoke(message)
+        answer = self._llm_chain.invoke(message).lower()
         logging.info(f'answer is {answer}')
         if 'none' in answer:
             return None
