@@ -1,7 +1,7 @@
 from core.settings import get_settings
 from db.llm.llm_processor import LLMProcessor
-from langchain_community.llms import YandexGPT
 from langchain import PromptTemplate
+from langchain_community.llms import YandexGPT
 
 
 class YandexGPTLLM(LLMProcessor):
@@ -14,7 +14,7 @@ class YandexGPTLLM(LLMProcessor):
         Запрос: {query}
         Если ты сомневаешься — отвечай none.
         У тебя есть 4 варианта ответа: movies, genres, persons, none. Ответь, пожалуйста, одним словом.
-        """
+        """  # noqa: E501
         super().__init__(
             prompt_template=template,
             max_tokens=20,

@@ -1,9 +1,8 @@
 from typing import Callable, TypeVar
 
 import pika
-from db.queues.base_queue import BaseQueue
-
 from core.settings import get_rabbit_settings
+from db.queues.base_queue import BaseQueue
 
 T = TypeVar('T')
 

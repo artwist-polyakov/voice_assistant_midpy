@@ -1,9 +1,9 @@
 from abc import ABC
 from functools import wraps
 
-from redis import Redis
-
 from core.settings import get_settings
+
+from redis import Redis
 
 
 class RedisCore(ABC):

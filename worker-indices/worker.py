@@ -6,10 +6,9 @@ from core.settings import get_rabbit_settings
 from db.cache.redis_cache import RedisCache
 from db.llm.yandex_gpt import YandexGPTLLM
 from db.queues.rabbit_queue import RabbitQueue
+from models.search_request import SearchRequest
 from pika.channel import Channel
 from pika.spec import Basic, BasicProperties
-
-from models.search_request import SearchRequest
 
 logger = logging.getLogger('creating-worker-logger')
 logger.setLevel(logging.INFO)
