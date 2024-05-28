@@ -15,36 +15,22 @@ setup_root_logger()
 
 
 class Settings(BaseSettings):
-    api_name: str = "NLP API"
     logging_level: str = "INFO"
 
     sentry_dsn: str = ...
     sentry_enable_tracing: bool = True
 
-    elastic_host: str = ...
-    elastic_port: int = 9200
+    redis_db: int = 8
+    redis_host: str = ...
+    redis_port: int = ...
+
+    yc_api_key: str = ...
 
     def get_logging_level(self) -> int:
         return log_levels.get(self.logging_level, logging.INFO)
 
     class Config:
         env_file = '.env'
-
-
-settings = Settings()
-
-
-class ElasticDsn(BaseSettings):
-    scheme: str = 'http'
-    host: str = settings.elastic_host
-    port: int = settings.elastic_port
-
-
-class ElasticSettings(BaseSettings):
-    hosts: list[ElasticDsn] = [ElasticDsn()]
-    timeout: int = 60
-    max_retries: int = 10
-    retry_on_timeout: bool = True
 
 
 class RabbitSettings(BaseSettings):
@@ -57,6 +43,10 @@ class RabbitSettings(BaseSettings):
     user: str
     password: str
     exchange: str
+    subject_queue: str
+
+
+settings = Settings()
 
 
 @lru_cache
