@@ -1,4 +1,4 @@
-from db.models.requests.base_request import BaseRequest
+from models.base_request import BaseRequest
 
 
 class SearchRequest(BaseRequest):
