@@ -1,3 +1,5 @@
+import logging
+
 from core.settings import get_settings
 from db.llm.llm_processor import LLMProcessor
 from langchain import PromptTemplate
@@ -33,6 +35,7 @@ class YandexGPTLLM(LLMProcessor):
 
     def process_query(self, message: str) -> str | None:
         answer = self._llm_chain.invoke(message)
+        logging.info(f'answer is {answer}')
         if 'none' in answer:
             return None
         if 'movies' in answer:
