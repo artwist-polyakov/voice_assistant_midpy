@@ -27,15 +27,16 @@ class QueueLLM(BaseLLM):
             request.external_message_id
         ])
         pipe_result = await self._llm_pipe.get_keys_with_values(prefix=prefix)
-
-        logging.info(f"Got result from pipe: {QueueLLM._preprocess_pipe_result(pipe_result)}")
+        prepr = QueueLLM._preprocess_pipe_result(pipe_result)
+        logging.info(f"Got result from pipe: {prepr}")
         # if "вездны" in request.query and "войн" in request.query:
         #     return ('movies',
         #             MultiMatch(query="star wars", fields=['title^5', 'description']))
         # raise NotImplementedError
         query = Query()
-        return (QueueLLM.get_index(pipe_result),
-                QueueLLM.configure_query(pipe_result, query))
+        QueueLLM.configure_query(prepr, query)
+        return (QueueLLM.get_index(prepr),
+                query)
 
     @staticmethod
     def get_index(preproc_data: dict) -> index_name | None:
@@ -45,7 +46,7 @@ class QueueLLM(BaseLLM):
         return index
 
     @staticmethod
-    def configure_query(preproc_data: dict, search: Search) -> Search:
+    def configure_query(preproc_data: dict, query: Query) -> Query:
         for key, value in preproc_data.items():
             if value is None:
                 continue
@@ -53,15 +54,15 @@ class QueueLLM(BaseLLM):
                 value = ' '.join(value)
             match key:
                 case 'title':
-                    search = search.query(MultiMatch(query=value, fields=['title^5']))
+                    query = query.MultiMatch(query=value, fields=['title^5'])
                 case 'description':
-                    search = search.query(MultiMatch(query=value, fields=['description']))
+                    query = query.MultiMatch(query=value, fields=['description'])
                 case 'actor':
-                    search = search.query(MultiMatch(query=value, fields=['actors_names']))
+                    query = query.MultiMatch(query=value, fields=['actors_names'])
                 case 'director':
-                    search = search.query(MultiMatch(query=value, fields=['directors_names']))
+                    query = query.MultiMatch(query=value, fields=['directors_names'])
                 case 'genre':
-                    search = search.query(MultiMatch(query=value, fields=['genres']))
+                    query = query.MultiMatch(query=value, fields=['genres'])
                 # case 'date':
                 # for date_condition in value:
                 #     params = date_condition.split(':')
@@ -73,12 +74,12 @@ class QueueLLM(BaseLLM):
                 #         query = query.Range(release_date={'lt': params[1]})
                 case 'rating':
                     if 'asc' in value:
-                        search = search.sort('imdb_rating')
+                        query = query.sort('imdb_rating')
                     if 'desc' in value:
-                        search = search.sort('-imdb_rating')
+                        query = query.sort('-imdb_rating')
                 case _:
                     pass
-        return search
+        return query
 
     @staticmethod
     def _get_last_part_of_key(key: str) -> str:
