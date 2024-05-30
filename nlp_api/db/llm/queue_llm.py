@@ -1,15 +1,12 @@
 import asyncio
-import datetime
 import logging
 import re
-import time
-
+from datetime import datetime
 from db.llm.base_llm import BaseLLM
 from db.llm_pipe.redis_llm_pipe import RedisLLMPipe
 from db.models.requests.search_request import SearchRequest
 from db.queue.rabbit_queue import RabbitQueue
-from elasticsearch_dsl.query import MultiMatch, Query
-from elasticsearch_dsl.search import Search, Q
+from elasticsearch_dsl import Search, Q
 
 index_name = str
 
@@ -18,7 +15,7 @@ class QueueLLM(BaseLLM):
     _queue = RabbitQueue()
     _llm_pipe = RedisLLMPipe()
 
-    async def get_query(self, request: SearchRequest) -> (index_name, Query):
+    async def get_query(self, request: SearchRequest) -> (index_name, Search):
         self._queue.push(task=request)
         await asyncio.sleep(2)
         prefix = "-".join([
@@ -29,24 +26,20 @@ class QueueLLM(BaseLLM):
         pipe_result = await self._llm_pipe.get_keys_with_values(prefix=prefix)
         prepr = QueueLLM._preprocess_pipe_result(pipe_result)
         logging.info(f"Got result from pipe: {prepr}")
-        # if "вездны" in request.query and "войн" in request.query:
-        #     return ('movies',
-        #             MultiMatch(query="star wars", fields=['title^5', 'description']))
-        # raise NotImplementedError
-        query = Query()
-        QueueLLM.configure_query(prepr, query)
-        return (QueueLLM.get_index(prepr),
-                query)
+
+        index = QueueLLM.get_index(prepr)
+        search = Search(index=index)
+        search = QueueLLM.configure_query(prepr, search)
+        return index, search
 
     @staticmethod
-    def get_index(preproc_data: dict) -> index_name | None:
-        index = preproc_data.get('index', None)
-        if index is None or index == 'movies':
-            return 'movies'
-        return index
+    def get_index(preproc_data: dict) -> index_name:
+        index = preproc_data.get('index', ['movies'])
+        return index[0] if isinstance(index, list) else index
 
     @staticmethod
-    def configure_query(preproc_data: dict, query: Query) -> Query:
+    def configure_query(preproc_data: dict, search: Search) -> Search:
+        query_parts = []
         for key, value in preproc_data.items():
             if value is None:
                 continue
@@ -54,51 +47,54 @@ class QueueLLM(BaseLLM):
                 value = ' '.join(value)
             match key:
                 case 'title':
-                    query = query.MultiMatch(query=value, fields=['title^5'])
+                    query_parts.append(Q('multi_match', query=value, fields=['title^5'], type='phrase'))
                 case 'description':
-                    query = query.MultiMatch(query=value, fields=['description'])
+                    query_parts.append(Q('multi_match', query=value, fields=['description'], type='most_fields'))
                 case 'actor':
-                    query = query.MultiMatch(query=value, fields=['actors_names'])
+                    query_parts.append(Q('multi_match', query=value, fields=['actors_names'], type='most_fields'))
                 case 'director':
-                    query = query.MultiMatch(query=value, fields=['directors_names'])
+                    query_parts.append(Q('multi_match', query=value, fields=['directors_names'], type='most_fields'))
                 case 'genre':
-                    query = query.MultiMatch(query=value, fields=['genres'])
-                # case 'date':
-                # for date_condition in value:
-                #     params = date_condition.split(':')
-                #     if params[1] == 'now':
-                #         query = query.Range(release_date={'lte': datetime.now().strftime('%Y-%m-%d')})
-                #     elif params[0] == 'gt':
-                #         query = query.Range(release_date={'gt': params[1]})
-                #     elif params[0] == 'lt':
-                #         query = query.Range(release_date={'lt': params[1]})
+                    for genre in value.split():
+                        query_parts.append(Q('nested', path='genres', query=Q('match', genres__name=genre)))
                 case 'rating':
                     if 'asc' in value:
-                        query = query.sort('imdb_rating')
-                    if 'desc' in value:
-                        query = query.sort('-imdb_rating')
+                        search = search.sort('imdb_rating')
+                    elif 'desc' in value:
+                        search = search.sort('-imdb_rating')
+                # case 'date':
+                #     date_conditions = value.split(':')
+                #     if date_conditions[1] == 'now':
+                #         query_parts.append(Q('range', release_date={'lte': datetime.now().strftime('%Y-%m-%d')}))
+                #     elif date_conditions[0] == 'gt':
+                #         query_parts.append(Q('range', release_date={'gt': date_conditions[1]}))
+                #     elif date_conditions[0] == 'lt':
+                #         query_parts.append(Q('range', release_date={'lt': date_conditions[1]}))
                 case _:
                     pass
-        return query
+
+        if query_parts:
+            search = search.query('bool', should=query_parts, minimum_should_match=1)
+        return search
 
     @staticmethod
     def _get_last_part_of_key(key: str) -> str:
         return key.split('_')[-1]
 
     @staticmethod
-    def _is_none_value(value: str):
+    def _is_none_value(value: str) -> bool:
         return value.strip().lower() == "none"
 
     @staticmethod
-    def _split_values(value: str):
+    def _split_values(value: str) -> list:
         return value.split(',')
 
     @staticmethod
-    def _clean_phrase(phrase):
+    def _clean_phrase(phrase: str) -> str:
         return re.sub(r'[^a-zA-Zа-яА-Я0-9 ]', '', phrase).lower()
 
     @staticmethod
-    def _preprocess_pipe_result(pipe_result: dict):
+    def _preprocess_pipe_result(pipe_result: dict) -> dict:
         processed_result = {}
         for key, value in pipe_result.items():
             key_part = QueueLLM._get_last_part_of_key(key.decode('utf-8'))

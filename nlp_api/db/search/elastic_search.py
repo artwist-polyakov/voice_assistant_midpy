@@ -1,12 +1,11 @@
-import logging
 from functools import wraps
-
+import logging
 from core.settings import ElasticSettings
 from db.models.requests.search_request import SearchRequest
 from db.models.responses.base_response import BaseResponse
 from db.models.responses.search_response import SearchResponse
 from db.search.base_search import BaseSearch
-from elasticsearch import AsyncElasticsearch
+from elasticsearch import AsyncElasticsearch, NotFoundError
 from elasticsearch_dsl import Search
 
 
@@ -30,15 +29,14 @@ class ElasticSearch(BaseSearch):
         result = None
         try:
             index, search = await self._llm.get_query(request)
-            logging.info(f"Got query: {search}")
-            # search = Search(using=self._elastic, index=index).query(query)
+            logging.info(f"Got query: {search.to_dict()}")
             result = await self._elastic.search(index=index, body=search.to_dict())
             data = []
             for element in result['hits']['hits']:
                 data.append(element['_source'])
             result = {'data': data}
-        except NotImplementedError:
-            pass
+        except NotFoundError:
+            return result
         return SearchResponse(data=result) if result else result
 
     async def close(self):
