@@ -1,3 +1,4 @@
+import logging
 from functools import wraps
 
 from core.settings import ElasticSettings
@@ -28,8 +29,9 @@ class ElasticSearch(BaseSearch):
     async def handle_request(self, request: SearchRequest) -> BaseResponse | None:
         result = None
         try:
-            index, query = await self._llm.get_query(request)
-            search = Search(using=self._elastic, index=index).query(query)
+            index, search = await self._llm.get_query(request)
+            logging.info(f"Got query: {search}")
+            # search = Search(using=self._elastic, index=index).query(query)
             result = await self._elastic.search(index=index, body=search.to_dict())
             data = []
             for element in result['hits']['hits']:
