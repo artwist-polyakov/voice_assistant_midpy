@@ -29,9 +29,9 @@ class ElasticSearch(BaseSearch):
     async def handle_request(self, request: SearchRequest) -> BaseResponse | None:
         result = None
         try:
-            index, search = await self._llm.get_query(request)
-            logging.info(f"Got query: {search}")
-            # search = Search(using=self._elastic, index=index).query(query)
+            index, query_list, sorting = await self._llm.get_query(request)
+            logging.info(f"Got query: {query_list}")
+            search = Search(using=self._elastic, index=index).query('bool', must=query_list).sort(sorting)
             result = await self._elastic.search(index=index, body=search.to_dict())
             data = []
             for element in result['hits']['hits']:

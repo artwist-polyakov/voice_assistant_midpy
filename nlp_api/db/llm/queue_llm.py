@@ -18,7 +18,7 @@ class QueueLLM(BaseLLM):
     _queue = RabbitQueue()
     _llm_pipe = RedisLLMPipe()
 
-    async def get_query(self, request: SearchRequest) -> (index_name, Query):
+    async def get_query(self, request: SearchRequest) -> (index_name, list[Query], str | None):
         self._queue.push(task=request)
         await asyncio.sleep(2)
         prefix = "-".join([
@@ -27,15 +27,16 @@ class QueueLLM(BaseLLM):
             request.external_message_id
         ])
         pipe_result = await self._llm_pipe.get_keys_with_values(prefix=prefix)
-
-        logging.info(f"Got result from pipe: {QueueLLM._preprocess_pipe_result(pipe_result)}")
+        preprocess_result = QueueLLM._preprocess_pipe_result(pipe_result)
+        logging.info(f"Got result from pipe: {preprocess_result}")
         # if "вездны" in request.query and "войн" in request.query:
         #     return ('movies',
         #             MultiMatch(query="star wars", fields=['title^5', 'description']))
         # raise NotImplementedError
-        query = Query()
+        query_list, sorting = QueueLLM.configure_query(preprocess_result)
         return (QueueLLM.get_index(pipe_result),
-                QueueLLM.configure_query(pipe_result, query))
+                query_list,
+                sorting)
 
     @staticmethod
     def get_index(preproc_data: dict) -> index_name | None:
@@ -45,7 +46,10 @@ class QueueLLM(BaseLLM):
         return index
 
     @staticmethod
-    def configure_query(preproc_data: dict, search: Search) -> Search:
+    def configure_query(preproc_data: dict) -> (list[Query], str | None):
+        query_parts = []
+        sorting = 'imdb_rating'
+        logging.info(f"Preproc data: {preproc_data}")
         for key, value in preproc_data.items():
             if value is None:
                 continue
@@ -53,32 +57,28 @@ class QueueLLM(BaseLLM):
                 value = ' '.join(value)
             match key:
                 case 'title':
-                    search = search.query(MultiMatch(query=value, fields=['title^5']))
+                    query_parts.append(Q('multi_match', query=value, fields=['title^5']))
+                    logging.info(f"Added title query: {value}")
                 case 'description':
-                    search = search.query(MultiMatch(query=value, fields=['description']))
+                    query_parts.append(Q('multi_match', query=value, fields=['description']))
+                    logging.info(f"Added description query: {value}")
                 case 'actor':
-                    search = search.query(MultiMatch(query=value, fields=['actors_names']))
+                    query_parts.append(Q('multi_match', query=value, fields=['actors_names']))
+                    logging.info(f"Added actor query: {value}")
                 case 'director':
-                    search = search.query(MultiMatch(query=value, fields=['directors_names']))
+                    query_parts.append(Q('multi_match', query=value, fields=['directors_names']))
+                    logging.info(f"Added director query: {value}")
                 case 'genre':
-                    search = search.query(MultiMatch(query=value, fields=['genres']))
-                # case 'date':
-                # for date_condition in value:
-                #     params = date_condition.split(':')
-                #     if params[1] == 'now':
-                #         query = query.Range(release_date={'lte': datetime.now().strftime('%Y-%m-%d')})
-                #     elif params[0] == 'gt':
-                #         query = query.Range(release_date={'gt': params[1]})
-                #     elif params[0] == 'lt':
-                #         query = query.Range(release_date={'lt': params[1]})
+                    query_parts.append(Q('multi_match', query=value, fields=['genres']))
+                    logging.info(f"Added genre query: {value}")
                 case 'rating':
                     if 'asc' in value:
-                        search = search.sort('imdb_rating')
-                    if 'desc' in value:
-                        search = search.sort('-imdb_rating')
+                        sorting = 'imdb_rating'
+                    elif 'desc' in value:
+                        sorting = '-imdb_rating'
                 case _:
                     pass
-        return search
+        return query_parts, sorting
 
     @staticmethod
     def _get_last_part_of_key(key: str) -> str:
