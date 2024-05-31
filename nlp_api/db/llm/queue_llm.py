@@ -1,12 +1,12 @@
 import asyncio
 import logging
 import re
-from datetime import datetime
+
 from db.llm.base_llm import BaseLLM
 from db.llm_pipe.redis_llm_pipe import RedisLLMPipe
 from db.models.requests.search_request import SearchRequest
 from db.queue.rabbit_queue import RabbitQueue
-from elasticsearch_dsl import Search, Q
+from elasticsearch_dsl import Q, Search
 
 index_name = str
 
@@ -47,16 +47,36 @@ class QueueLLM(BaseLLM):
                 value = ' '.join(value)
             match key:
                 case 'title':
-                    query_parts.append(Q('multi_match', query=value, fields=['title^5'], type='phrase'))
+                    query_parts.append(
+                        Q('multi_match', query=value, fields=['title^5'], type='phrase')
+                    )
                 case 'description':
-                    query_parts.append(Q('multi_match', query=value, fields=['description'], type='most_fields'))
+                    query_parts.append(
+                        Q('multi_match', query=value, fields=['description'], type='most_fields')
+                    )
                 case 'actor':
-                    query_parts.append(Q('multi_match', query=value, fields=['actors_names'], type='most_fields'))
+                    query_parts.append(
+                        Q('multi_match', query=value, fields=['actors_names'], type='most_fields')
+                    )
                 case 'director':
-                    query_parts.append(Q('multi_match', query=value, fields=['directors_names'], type='most_fields'))
+                    query_parts.append(
+                        Q(
+                            'multi_match',
+                            query=value,
+                            fields=['directors_names'],
+                            type='most_fields'
+                        )
+                    )
                 case 'genre':
                     for genre in value.split():
-                        query_parts.append(Q('nested', path='genres', query=Q('match', genres__name=genre)))
+                        if genre != 'none':
+                            query_parts.append(
+                                Q(
+                                    'nested',
+                                    path='genres',
+                                    query=Q('match', genres__name=genre)
+                                )
+                            )
                 case 'rating':
                     if 'asc' in value:
                         search = search.sort('imdb_rating')
@@ -65,7 +85,9 @@ class QueueLLM(BaseLLM):
                 # case 'date':
                 #     date_conditions = value.split(':')
                 #     if date_conditions[1] == 'now':
-                #         query_parts.append(Q('range', release_date={'lte': datetime.now().strftime('%Y-%m-%d')}))
+                #         query_parts.append(
+                #         Q('range', release_date={'lte': datetime.now().strftime('%Y-%m-%d')})
+                #         )
                 #     elif date_conditions[0] == 'gt':
                 #         query_parts.append(Q('range', release_date={'gt': date_conditions[1]}))
                 #     elif date_conditions[0] == 'lt':
@@ -74,7 +96,14 @@ class QueueLLM(BaseLLM):
                     pass
 
         if query_parts:
-            search = search.query('bool', should=query_parts, minimum_should_match=1)
+            search = search.query(
+                'bool',
+                should=query_parts,
+                minimum_should_match=len(
+                    query_parts
+                ) // 2 if len(
+                    query_parts
+                ) > 2 else 1)
         return search
 
     @staticmethod
