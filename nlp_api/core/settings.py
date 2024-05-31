@@ -27,6 +27,7 @@ class Settings(BaseSettings):
     redis_host: str = ...
     redis_port: int = ...
     redis_db: int = 0
+    redis_llm_pipeline: int = 8
 
     def get_logging_level(self) -> int:
         return log_levels.get(self.logging_level, logging.INFO)
