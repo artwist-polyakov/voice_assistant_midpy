@@ -52,11 +52,11 @@ class QueueLLM(BaseLLM):
                     )
                 case 'description':
                     query_parts.append(
-                        Q('multi_match', query=value, fields=['description'], type='most_fields')
+                        Q('multi_match', query=value, fields=['description'], type='phrase')
                     )
                 case 'actor':
                     query_parts.append(
-                        Q('multi_match', query=value, fields=['actors_names'], type='most_fields')
+                        Q('multi_match', query=value, fields=['actors_names'], type='phrase')
                     )
                 case 'director':
                     query_parts.append(
@@ -64,7 +64,7 @@ class QueueLLM(BaseLLM):
                             'multi_match',
                             query=value,
                             fields=['directors_names'],
-                            type='most_fields'
+                            type='phrase'
                         )
                     )
                 case 'genre':
@@ -99,11 +99,7 @@ class QueueLLM(BaseLLM):
             search = search.query(
                 'bool',
                 should=query_parts,
-                minimum_should_match=len(
-                    query_parts
-                ) // 2 if len(
-                    query_parts
-                ) > 2 else 1)
+                minimum_should_match=max(1, int(len(query_parts) * 0.75)))
         return search
 
     @staticmethod
