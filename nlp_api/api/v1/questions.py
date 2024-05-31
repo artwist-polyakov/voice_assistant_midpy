@@ -47,6 +47,8 @@ async def ask_question(
             content={
                 'result': f'Кажется вас заинтересует фильм "{film_name}"'
                           f' с рейтингом {film_rating}',
+                'name': film_name,
+                'rating': film_rating,
                 'description': film_description,
                 'id': id,
                 'actors_names': actors_names,
