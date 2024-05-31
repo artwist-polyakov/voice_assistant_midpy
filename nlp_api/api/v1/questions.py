@@ -37,11 +37,24 @@ async def ask_question(
     if result:
         film_name = result['data'][0]['title']
         film_rating = result['data'][0]['imdb_rating']
+        film_description = result['data'][0]['description']
+        id = result['data'][0]['id']
+        actors_names = result['data'][0]['actors_names']
+        directors_names = result['data'][0]['directors_names']
+        genres = [it['name'] for it in result['data'][0]['genres']]
         return JSONResponse(
             status_code=HTTPStatus.OK,
             content={
                 'result': f'Кажется вас заинтересует фильм "{film_name}"'
-                          f' с рейтингом {film_rating}'}
+                          f' с рейтингом {film_rating}',
+                'name': film_name,
+                'rating': film_rating,
+                'description': film_description,
+                'id': id,
+                'actors_names': actors_names,
+                'directors_names': directors_names,
+                'genres': genres
+            }
         )
     return JSONResponse(
         status_code=HTTPStatus.INTERNAL_SERVER_ERROR,
