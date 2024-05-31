@@ -31,7 +31,7 @@ class ElasticSearch(BaseSearch):
             index, search = await self._llm.get_query(request)
             logging.info(f"Got query: {search.to_dict()}")
             logging.info(f"Got index: {index}")
-            result = await self._elastic.search(index=index, body=search.to_dict())
+            result = await self._elastic.search(index='movies', body=search.to_dict())
             data = []
             for element in result['hits']['hits']:
                 data.append(element['_source'])
