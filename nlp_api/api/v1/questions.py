@@ -22,6 +22,10 @@ router = APIRouter()
             "model": FilmResponse,
             "description": "Успешный запрос. Возвращает информацию о фильме"
         },
+        204: {
+            "model": ErrorResponse,
+            "description": "Успешный запрос, но нет содержимого для возврата"
+         },
         400: {
             "model": ErrorResponse,
             "description": "Некорректный запрос. Возвращает сообщение об ошибке"
