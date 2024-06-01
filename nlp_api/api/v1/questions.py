@@ -18,23 +18,23 @@ router = APIRouter()
     summary="Ask a question",
     description="Ask a question to the cinema bot",
     responses={
-    200: {
-        "model": FilmResponse,
-        "description": "Успешный запрос. Возвращает информацию о фильме"
-    },
-    400: {
-        "model": ErrorResponse,
-        "description": "Некорректный запрос. Возвращает сообщение об ошибке"
-    },
-    404: {
-        "model": ErrorResponse,
-        "description": "Ресурс не найден. Возвращает сообщение об отсутствии данных"
-    },
-    500: {
-        "model": ErrorResponse,
-        "description": "Внутренняя ошибка сервера. Запрос не удался"
+        200: {
+            "model": FilmResponse,
+            "description": "Успешный запрос. Возвращает информацию о фильме"
+        },
+        400: {
+            "model": ErrorResponse,
+            "description": "Некорректный запрос. Возвращает сообщение об ошибке"
+        },
+        404: {
+            "model": ErrorResponse,
+            "description": "Ресурс не найден. Возвращает сообщение об отсутствии данных"
+        },
+        500: {
+            "model": ErrorResponse,
+            "description": "Внутренняя ошибка сервера. Запрос не удался"
+        }
     }
-}
 )
 async def ask_question(
         external_user_id: str,
