@@ -58,7 +58,6 @@ async def ask_question(
         query=params.text
     ))
     logging.info(f"Result: {result}")
-    
     if len(result) == 0:
         return JSONResponse(
             status_code=HTTPStatus.NO_CONTENT,
