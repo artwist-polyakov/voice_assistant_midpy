@@ -17,7 +17,7 @@ router = APIRouter()
     path='/ask',
     summary="Ask a question",
     description="Ask a question to the cinema bot",
-    responses = {
+    responses={
     200: {
         "model": FilmResponse,
         "description": "Успешный запрос. Возвращает информацию о фильме"
