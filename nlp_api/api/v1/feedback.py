@@ -15,11 +15,11 @@ router = APIRouter()
     summary="Send a request to support",
     description="Send a support request in case of an error",
     responses={
-        200: {
+        HTTPStatus.OK: {
             "model": SuccessResponse,
             "description": "Успешный запрос. Спасибо за обратную связь!"
         },
-        400: {
+        HTTPStatus.BAD_REQUEST: {
             "model": ErrorResponse,
             "description": "Некорректный запрос. Возвращает сообщение об ошибке"
         }
@@ -47,11 +47,11 @@ async def support(
     summary="Agree with the response",
     description="Agree with the response of the question",
     responses={
-        200: {
+        HTTPStatus.OK: {
             "model": SuccessResponse,
             "description": "Успешный запрос. Спасибо за обратную связь!"
         },
-        400: {
+        HTTPStatus.BAD_REQUEST: {
             "model": ErrorResponse,
             "description": "Некорректный запрос. Возвращает сообщение об ошибке"
         },
