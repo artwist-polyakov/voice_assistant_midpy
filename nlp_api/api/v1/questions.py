@@ -2,6 +2,8 @@ import logging
 from http import HTTPStatus
 
 from api.v1.models.requests.nlp_request import QuestionParam
+from api.v1.models.requests.nlp_request import FilmResponse
+from api.v1.models.requests.nlp_request import ErrorResponse
 from db.models.requests.search_request import SearchRequest
 from fastapi import APIRouter, Depends
 from fastapi.responses import JSONResponse
@@ -14,7 +16,13 @@ router = APIRouter()
 @router.get(
     path='/ask',
     summary="Ask a question",
-    description="Ask a question to the cinema bot"
+    description="Ask a question to the cinema bot",
+    responses={
+        200: {"model": FilmResponse, "description": "Успешный запрос. Возвращает информацию о фильме"},
+        400: {"model": ErrorResponse, "description": "Некорректный запрос. Возвращает сообщение об ошибке"},
+        404: {"model": ErrorResponse, "description": "Ресурс не найден. Возвращает сообщение об отсутствии данных"},
+        500: {"model": ErrorResponse, "description": "Внутренняя ошибка сервера. Запрос не удался"}
+    }
 )
 async def ask_question(
         external_user_id: str,

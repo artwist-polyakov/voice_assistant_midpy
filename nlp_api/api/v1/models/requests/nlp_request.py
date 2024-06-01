@@ -16,3 +16,22 @@ class QuestionParam(BaseModel):
         AssistantType.ALICE,
         description="Assistant type"
     )
+
+
+class FilmResponse(BaseModel):
+    result: str
+    name: str
+    rating: float
+    description: str
+    id: int
+    actors_names: list
+    directors_names: list
+    genres: list
+
+
+class ErrorResponse(BaseModel):
+    result: str
+
+
+class SuccessResponse(BaseModel):
+    result: str

@@ -2,6 +2,8 @@ import logging
 from http import HTTPStatus
 
 from api.v1.models.requests.nlp_request import QuestionParam
+from api.v1.models.requests.nlp_request import ErrorResponse
+from api.v1.models.requests.nlp_request import SuccessResponse
 from fastapi import APIRouter, Depends
 from fastapi.responses import JSONResponse
 
@@ -11,7 +13,11 @@ router = APIRouter()
 @router.get(
     path='/support',
     summary="Send a request to support",
-    description="Send a support request in case of an error"
+    description="Send a support request in case of an error",
+    responses={
+        200: {"model": SuccessResponse, "description": "Успешный запрос. Спасибо за обратную связь!"},
+        400: {"model": ErrorResponse, "description": "Некорректный запрос. Возвращает сообщение об ошибке"}
+    }
 )
 async def support(
         external_user_id: str,
@@ -33,7 +39,11 @@ async def support(
 @router.get(
     path='/agree',
     summary="Agree with the response",
-    description="Agree with the response of the question"
+    description="Agree with the response of the question",
+    responses={
+        200: {"model": SuccessResponse, "description": "Успешный запрос. Приятного просмотра!"},
+        400: {"model": ErrorResponse, "description": "Некорректный запрос. Возвращает сообщение об ошибке"}
+    }
 )
 async def agree(
         external_user_id: str,
