@@ -15,8 +15,14 @@ router = APIRouter()
     summary="Send a request to support",
     description="Send a support request in case of an error",
     responses={
-        200: {"model": SuccessResponse, "description": "Успешный запрос. Спасибо за обратную связь!"},
-        400: {"model": ErrorResponse, "description": "Некорректный запрос. Возвращает сообщение об ошибке"}
+        200: {
+            "model": SuccessResponse,
+            "description": "Успешный запрос. Спасибо за обратную связь!"
+        },
+        400: {
+            "model": ErrorResponse,
+            "description": "Некорректный запрос. Возвращает сообщение об ошибке"
+        }
     }
 )
 async def support(
@@ -41,9 +47,15 @@ async def support(
     summary="Agree with the response",
     description="Agree with the response of the question",
     responses={
-        200: {"model": SuccessResponse, "description": "Успешный запрос. Приятного просмотра!"},
-        400: {"model": ErrorResponse, "description": "Некорректный запрос. Возвращает сообщение об ошибке"}
+    200: {
+        "model": SuccessResponse,
+        "description": "Успешный запрос. Приятного просмотра!"
+    },
+    400: {
+        "model": ErrorResponse,
+        "description": "Некорректный запрос. Возвращает сообщение об ошибке"
     }
+}
 )
 async def agree(
         external_user_id: str,
