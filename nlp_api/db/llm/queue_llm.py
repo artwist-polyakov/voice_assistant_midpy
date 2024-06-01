@@ -108,7 +108,7 @@ class QueueLLM(BaseLLM):
 
     @staticmethod
     def _is_none_value(value: str) -> bool:
-        return value.strip().lower() == "none"
+        return "none" in value.strip().lower()
 
     @staticmethod
     def _split_values(value: str) -> list:
