@@ -46,10 +46,10 @@ async def support(
     path='/agree',
     summary="Agree with the response",
     description="Agree with the response of the question",
-    responses={
+    responses = {
     200: {
         "model": SuccessResponse,
-        "description": "Успешный запрос. Приятного просмотра!"
+        "description": "Успешный запрос. Спасибо за обратную связь!"
     },
     400: {
         "model": ErrorResponse,
