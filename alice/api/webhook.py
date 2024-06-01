@@ -46,24 +46,54 @@ async def handle_dialog(req, res):
 
         sessionStorage[user_id] = {
             'suggests': [
-                "Не хочу.",
-                "Не буду.",
-                "Отстань!",
-            ]
+                "Спасибо",
+                "Подходит",
+                "Написать в поддержку",
+            ],
+            'need_support': False
         }
 
-        # res['response']['text'] = 'Привет! Купи слона!'
         res['response']['text'] = 'Привет! Расскажи, какое кино тебя интересует?'
         res['response']['buttons'] = get_suggests(user_id)
         return
 
     text = req['request']['original_utterance'].lower()
 
+    # По умолчанию эйндпоинт - поиск фильма
+    endpoint = settings.nlp_endpoint
+
+    # обрабатываем обратную связь от пользоватлея
+    if sessionStorage[user_id].get('need_support'):
+        # Если в предыдущий раз пользователь нажал на "поддержку"
+        # то запрос отправляем на ручку с обратной связью
+        endpoint = settings.support_endpoint
+        sessionStorage[user_id]['need_support'] = False
+
+    # Обрабатываем ответ пользователя.
+    if text in [
+        'спасибо',
+        'подходит'
+    ]:
+        # Пользователь согласился, прощаемся.
+        res['response']['text'] = 'Приятного просмотра!'
+        return
+
+    # Просим сформулировать вопрос, если хочет написать в поддержку
+    if text in [
+        'написать в поддержку',
+        'поддержка',
+        'запрос в поддержку'
+    ]:
+        # Запоминаем, чтобы при следующем запросе обработать его
+        sessionStorage[user_id]['need_support'] = True
+        res['response']['text'] = 'Напишите, пожалуйста, ваш запрос в поддержку.'
+        return
+
     result, status = await get_response(
         'http://' +
         settings.nlp_server + ':' +
         str(settings.nlp_port) + '/' +
-        settings.nlp_endpoint,
+        endpoint,
         params={
             'external_user_id': user_id,
             'external_session_id': session_id,
@@ -71,21 +101,6 @@ async def handle_dialog(req, res):
             'text': text}
     )
 
-    # Обрабатываем ответ пользователя.
-    if req['request']['original_utterance'].lower() in [
-        'ладно',
-        'куплю',
-        'покупаю',
-        'хорошо',
-    ]:
-        # Пользователь согласился, прощаемся.
-        res['response']['text'] = 'Слона можно найти на Яндекс.Маркете!'
-        return
-
-    # Если нет, то убеждаем его купить слона!
-    res['response']['text'] = 'Все говорят "%s", а ты купи слона!' % (
-        req['request']['original_utterance']
-    )
     res['response']['buttons'] = get_suggests(user_id)
 
     if status != 200:

@@ -24,6 +24,7 @@ class Settings(BaseSettings):
     nlp_server: str = 'nlp-api'
     nlp_port: int = 5556
     nlp_endpoint: str = 'api/v1/nlp/ask'
+    support_endpoint: str = 'api/v1/nlp/support'
 
     def get_logging_level(self) -> int:
         return log_levels.get(self.logging_level, logging.INFO)
