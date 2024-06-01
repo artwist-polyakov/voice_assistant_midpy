@@ -1,6 +1,6 @@
 import sentry_sdk
 import uvicorn
-from api.v1 import questions
+from api.v1 import questions, feedback
 from core.logger import LOGGING
 from core.settings import get_settings
 from fastapi import FastAPI
@@ -26,6 +26,7 @@ app.add_middleware(LoggingMiddleware)
 # Подключаем роутер к серверу, указав префикс /v1/films
 # Теги указываем для удобства навигации по документации
 app.include_router(questions.router, prefix='/api/v1/nlp', tags=['NLP'])
+app.include_router(feedback.router, prefix='/api/v1/nlp', tags=['NLP Feedback'])
 
 if __name__ == '__main__':
     uvicorn.run(
