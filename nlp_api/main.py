@@ -1,6 +1,6 @@
 import sentry_sdk
 import uvicorn
-from api.v1 import questions, feedback
+from api.v1 import feedback, questions
 from core.logger import LOGGING
 from core.settings import get_settings
 from fastapi import FastAPI
