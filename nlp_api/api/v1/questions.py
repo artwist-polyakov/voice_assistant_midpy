@@ -1,7 +1,8 @@
 import logging
 from http import HTTPStatus
 
-from api.v1.models.requests.nlp_request import QuestionParam
+from api.v1.models.requests.nlp_request import (ErrorResponse, FilmResponse,
+                                                QuestionParam)
 from db.models.requests.search_request import SearchRequest
 from fastapi import APIRouter, Depends
 from fastapi.responses import JSONResponse
@@ -14,7 +15,26 @@ router = APIRouter()
 @router.get(
     path='/ask',
     summary="Ask a question",
-    description="Ask a question to the cinema bot"
+    description="Ask a question to the cinema bot",
+    responses={
+        200: {
+            "model": FilmResponse,
+            "description": "Успешный запрос. Возвращает информацию о фильме"
+        },
+        204: {},
+        400: {
+            "model": ErrorResponse,
+            "description": "Некорректный запрос. Возвращает сообщение об ошибке"
+        },
+        404: {
+            "model": ErrorResponse,
+            "description": "Ресурс не найден. Возвращает сообщение об отсутствии данных"
+        },
+        500: {
+            "model": ErrorResponse,
+            "description": "Внутренняя ошибка сервера. Запрос не удался"
+        }
+    }
 )
 async def ask_question(
         external_user_id: str,
@@ -34,7 +54,18 @@ async def ask_question(
         query=params.text
     ))
     logging.info(f"Result: {result}")
+    if len(result) == 0:
+        return JSONResponse(
+            status_code=HTTPStatus.NO_CONTENT,
+            content={'result': "Успешный запрос, но нет содержимого для возврата"}
+        )
+
     if result:
+        if ('data' not in result.keys() or len(result['data']) == 0):
+            return JSONResponse(
+                status_code=HTTPStatus.NO_CONTENT,
+                content=''
+            )
         film_name = result['data'][0]['title']
         film_rating = result['data'][0]['imdb_rating']
         film_description = result['data'][0]['description']
