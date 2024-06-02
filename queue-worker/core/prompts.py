@@ -1,4 +1,4 @@
-from core.settings import get_settings, get_rabbit_settings
+from core.settings import get_rabbit_settings
 
 TITLE_PROMPT = """
 Определи, содержатся ли в запросе слова, которые могут быть частью названия фильма.
