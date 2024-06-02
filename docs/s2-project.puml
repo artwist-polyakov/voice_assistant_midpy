@@ -42,39 +42,27 @@ package RequestRecognitionPipeline {
     queue TitleTextFinderQueue
     queue DescriptionTextFinderQueue
     database ResultsStorage
-    [SubjectWorker]
-    [PersonFilterWorker]
-    [RatingOrderWorker]
-    [GenreFilterWorker]
-    [DateFilterWorker]
-    [TitleTextFinderWorker]
-    [DescriptionTextFinderWorker]
+    [UniversalWorker]
 }
 
 VoiceInterface --down--> [API Gateway] : voice command
 [API Gateway] --> [NLP API] : parse command
-[NLP API] --> SubjectQueue : process command
-[NLP API] --> PersonFilterQueue : process command
-[NLP API] --> RatingOrderQueue : process command
-[NLP API] --> GenreFilterQueue : process command
-[NLP API] --> DateFilterQueue : process command
-[NLP API] --> TitleTextFinderQueue : process command
-[NLP API] --> DescriptionTextFinderQueue : process command
-SubjectQueue --> [SubjectWorker] : process command
-PersonFilterQueue --> [PersonFilterWorker] : process command
-RatingOrderQueue --> [RatingOrderWorker] : process command
-GenreFilterQueue --> [GenreFilterWorker] : process command
-DateFilterQueue --> [DateFilterWorker] : process command
-TitleTextFinderQueue --> [TitleTextFinderWorker] : process command
-DescriptionTextFinderQueue --> [DescriptionTextFinderWorker] : process command
-[SubjectWorker] --> ResultsStorage : store results
-[PersonFilterWorker] --> ResultsStorage : store results
-[RatingOrderWorker] --> ResultsStorage : store results
-[GenreFilterWorker] --> ResultsStorage : store results
-[DateFilterWorker] --> ResultsStorage : store results
-[TitleTextFinderWorker] --> ResultsStorage : store results
-[DescriptionTextFinderWorker] --> ResultsStorage : store results
-ResultsStorage --> [API Gateway] : return results
+[NLP API] --down--> SubjectQueue : process command
+[NLP API] --down-->  PersonFilterQueue : process command
+[NLP API] --down-->  RatingOrderQueue : process command
+[NLP API] --down-->  GenreFilterQueue : process command
+[NLP API] --down--> DateFilterQueue : process command
+[NLP API] --down-->  TitleTextFinderQueue : process command
+[NLP API] --down-->  DescriptionTextFinderQueue : process command
+SubjectQueue --> [UniversalWorker] : process command
+PersonFilterQueue --> [UniversalWorker] : process command
+RatingOrderQueue --> [UniversalWorker] : process command
+GenreFilterQueue --> [UniversalWorker] : process command
+DateFilterQueue --> [UniversalWorker] : process command
+TitleTextFinderQueue --> [UniversalWorker] : process command
+DescriptionTextFinderQueue --> [UniversalWorker]: process command
+[UniversalWorker] --> ResultsStorage : store results
+ResultsStorage -up-> [NLP API] : return results
 
 [API Gateway] -left-> CacheStorage : get context from cache
 
