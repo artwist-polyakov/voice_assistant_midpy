@@ -169,4 +169,3 @@ localhost.*
 .certs/*.crt
 .certs/*.pem
 nginx/passwords/passwords
-ssl-dhparams.pem
