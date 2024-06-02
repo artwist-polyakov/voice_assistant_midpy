@@ -172,10 +172,43 @@ services:
     depends_on:
       - rabbitmq
     restart: on-failure
+#
+#  worker-indices-1:
+#    container_name: worker-indices-1
+#    build: ./worker-indices
+#    env_file:
+#      - .env
+#    volumes:
+#      - ./logs:/app/logs:rw
+#    depends_on:
+#      - rabbitmq
+#    restart: always
+#
+#  worker-indices-2:
+#    container_name: worker-indices-2
+#    build: ./worker-indices
+#    env_file:
+#      - .env
+#    volumes:
+#      - ./logs:/app/logs:rw
+#    depends_on:
+#      - rabbitmq
+#    restart: always
+#
+#  worker-actors-1:
+#    container_name: worker-actors-1
+#    build: ./worker-actor
+#    env_file:
+#      - .env
+#    volumes:
+#      - ./logs:/app/logs:rw
+#    depends_on:
+#      - rabbitmq
+#    restart: always
 
-  worker-indices-1:
-    container_name: worker-indices-1
-    build: ./worker-indices
+  queue-worker-1:
+    container_name: queue-worker-1
+    build: ./queue-worker
     env_file:
       - .env
     volumes:
@@ -184,9 +217,9 @@ services:
       - rabbitmq
     restart: always
 
-  worker-indices-2:
-    container_name: worker-indices-2
-    build: ./worker-indices
+  queue-worker-2:
+    container_name: queue-worker-2
+    build: ./queue-worker
     env_file:
       - .env
     volumes:
@@ -194,160 +227,149 @@ services:
     depends_on:
       - rabbitmq
     restart: always
-
-  worker-actors-1:
-    container_name: worker-actors-1
-    build: ./worker-actor
-    env_file:
-      - .env
-    volumes:
-      - ./logs:/app/logs:rw
-    depends_on:
-      - rabbitmq
-    restart: always
-
-  worker-actors-2:
-    container_name: worker-actors-2
-    build: ./worker-actor
-    env_file:
-      - .env
-    volumes:
-      - ./logs:/app/logs:rw
-    depends_on:
-      - rabbitmq
-    restart: always
-
-  worker-directors-1:
-    container_name: worker-directors-1
-    build: ./worker-director
-    env_file:
-      - .env
-    volumes:
-      - ./logs:/app/logs:rw
-    depends_on:
-      - rabbitmq
-    restart: always
-
-  worker-directors-2:
-    container_name: worker-directors-2
-    build: ./worker-director
-    env_file:
-      - .env
-    volumes:
-      - ./logs:/app/logs:rw
-    depends_on:
-      - rabbitmq
-    restart: always
-
-  worker-rating-1:
-    container_name: worker-rating-1
-    build: ./worker-rating
-    env_file:
-      - .env
-    volumes:
-      - ./logs:/app/logs:rw
-    depends_on:
-      - rabbitmq
-    restart: always
-
-  worker-rating-2:
-    container_name: worker-rating-2
-    build: ./worker-rating
-    env_file:
-      - .env
-    volumes:
-      - ./logs:/app/logs:rw
-    depends_on:
-      - rabbitmq
-    restart: always
-
-  worker-genre-1:
-    container_name: worker-genre-1
-    build: ./worker-genres
-    env_file:
-      - .env
-    volumes:
-      - ./logs:/app/logs:rw
-    depends_on:
-      - rabbitmq
-    restart: always
-
-  worker-genre-2:
-    container_name: worker-genre-2
-    build: ./worker-genres
-    env_file:
-      - .env
-    volumes:
-      - ./logs:/app/logs:rw
-    depends_on:
-      - rabbitmq
-    restart: always
-
-  worker-date-1:
-    container_name: worker-date-1
-    build: ./worker-date
-    env_file:
-      - .env
-    volumes:
-      - ./logs:/app/logs:rw
-    depends_on:
-      - rabbitmq
-    restart: always
-
-  worker-date-2:
-    container_name: worker-date-2
-    build: ./worker-date
-    env_file:
-      - .env
-    volumes:
-      - ./logs:/app/logs:rw
-    depends_on:
-      - rabbitmq
-    restart: always
-
-  worker-title-1:
-    container_name: worker-title-1
-    build: ./worker-title
-    env_file:
-      - .env
-    volumes:
-      - ./logs:/app/logs:rw
-    depends_on:
-      - rabbitmq
-    restart: always
-
-  worker-title-2:
-    container_name: worker-title-2
-    build: ./worker-title
-    env_file:
-      - .env
-    volumes:
-      - ./logs:/app/logs:rw
-    depends_on:
-      - rabbitmq
-    restart: always
-
-  worker-description-1:
-    container_name: worker-description-1
-    build: ./worker-description
-    env_file:
-      - .env
-    volumes:
-      - ./logs:/app/logs:rw
-    depends_on:
-      - rabbitmq
-    restart: always
-
-  worker-description-2:
-    container_name: worker-description-2
-    build: ./worker-description
-    env_file:
-      - .env
-    volumes:
-      - ./logs:/app/logs:rw
-    depends_on:
-      - rabbitmq
-    restart: always
+#
+#  worker-actors-2:
+#    container_name: worker-actors-2
+#    build: ./worker-actor
+#    env_file:
+#      - .env
+#    volumes:
+#      - ./logs:/app/logs:rw
+#    depends_on:
+#      - rabbitmq
+#    restart: always
+#
+#  worker-directors-1:
+#    container_name: worker-directors-1
+#    build: ./worker-director
+#    env_file:
+#      - .env
+#    volumes:
+#      - ./logs:/app/logs:rw
+#    depends_on:
+#      - rabbitmq
+#    restart: always
+#
+#  worker-directors-2:
+#    container_name: worker-directors-2
+#    build: ./worker-director
+#    env_file:
+#      - .env
+#    volumes:
+#      - ./logs:/app/logs:rw
+#    depends_on:
+#      - rabbitmq
+#    restart: always
+#
+#  worker-rating-1:
+#    container_name: worker-rating-1
+#    build: ./worker-rating
+#    env_file:
+#      - .env
+#    volumes:
+#      - ./logs:/app/logs:rw
+#    depends_on:
+#      - rabbitmq
+#    restart: always
+#
+#  worker-rating-2:
+#    container_name: worker-rating-2
+#    build: ./worker-rating
+#    env_file:
+#      - .env
+#    volumes:
+#      - ./logs:/app/logs:rw
+#    depends_on:
+#      - rabbitmq
+#    restart: always
+#
+#  worker-genre-1:
+#    container_name: worker-genre-1
+#    build: ./worker-genres
+#    env_file:
+#      - .env
+#    volumes:
+#      - ./logs:/app/logs:rw
+#    depends_on:
+#      - rabbitmq
+#    restart: always
+#
+#  worker-genre-2:
+#    container_name: worker-genre-2
+#    build: ./worker-genres
+#    env_file:
+#      - .env
+#    volumes:
+#      - ./logs:/app/logs:rw
+#    depends_on:
+#      - rabbitmq
+#    restart: always
+#
+#  worker-date-1:
+#    container_name: worker-date-1
+#    build: ./worker-date
+#    env_file:
+#      - .env
+#    volumes:
+#      - ./logs:/app/logs:rw
+#    depends_on:
+#      - rabbitmq
+#    restart: always
+#
+#  worker-date-2:
+#    container_name: worker-date-2
+#    build: ./worker-date
+#    env_file:
+#      - .env
+#    volumes:
+#      - ./logs:/app/logs:rw
+#    depends_on:
+#      - rabbitmq
+#    restart: always
+#
+#  worker-title-1:
+#    container_name: worker-title-1
+#    build: ./worker-title
+#    env_file:
+#      - .env
+#    volumes:
+#      - ./logs:/app/logs:rw
+#    depends_on:
+#      - rabbitmq
+#    restart: always
+#
+#  worker-title-2:
+#    container_name: worker-title-2
+#    build: ./worker-title
+#    env_file:
+#      - .env
+#    volumes:
+#      - ./logs:/app/logs:rw
+#    depends_on:
+#      - rabbitmq
+#    restart: always
+#
+#  worker-description-1:
+#    container_name: worker-description-1
+#    build: ./worker-description
+#    env_file:
+#      - .env
+#    volumes:
+#      - ./logs:/app/logs:rw
+#    depends_on:
+#      - rabbitmq
+#    restart: always
+#
+#  worker-description-2:
+#    container_name: worker-description-2
+#    build: ./worker-description
+#    env_file:
+#      - .env
+#    volumes:
+#      - ./logs:/app/logs:rw
+#    depends_on:
+#      - rabbitmq
+#    restart: always
 
 volumes:
     static_volume:
