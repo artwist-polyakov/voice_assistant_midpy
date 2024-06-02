@@ -34,6 +34,7 @@ package NLPApi {
 }
 
 package RequestRecognitionPipeline {
+    [Exchange]
     queue SubjectQueue
     queue PersonFilterQueue
     queue RatingOrderQueue
@@ -47,13 +48,14 @@ package RequestRecognitionPipeline {
 
 VoiceInterface --down--> [API Gateway] : voice command
 [API Gateway] --> [NLP API] : parse command
-[NLP API] --down--> SubjectQueue : process command
-[NLP API] --down-->  PersonFilterQueue : process command
-[NLP API] --down-->  RatingOrderQueue : process command
-[NLP API] --down-->  GenreFilterQueue : process command
-[NLP API] --down--> DateFilterQueue : process command
-[NLP API] --down-->  TitleTextFinderQueue : process command
-[NLP API] --down-->  DescriptionTextFinderQueue : process command
+[NLP API] -down-> [Exchange] : send commands
+[Exchange] --> SubjectQueue : process command
+[Exchange] -->  PersonFilterQueue : process command
+[Exchange] -->  RatingOrderQueue : process command
+[Exchange] -->  GenreFilterQueue : process command
+[Exchange] --> DateFilterQueue : process command
+[Exchange] -->  TitleTextFinderQueue : process command
+[Exchange] -->  DescriptionTextFinderQueue : process command
 SubjectQueue --> [UniversalWorker] : process command
 PersonFilterQueue --> [UniversalWorker] : process command
 RatingOrderQueue --> [UniversalWorker] : process command
