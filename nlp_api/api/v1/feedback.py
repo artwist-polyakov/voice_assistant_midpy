@@ -1,9 +1,8 @@
 import logging
 from http import HTTPStatus
 
-from api.v1.models.requests.nlp_request import QuestionParam
-from api.v1.models.requests.nlp_request import ErrorResponse
-from api.v1.models.requests.nlp_request import SuccessResponse
+from api.v1.models.requests.nlp_request import (ErrorResponse, QuestionParam,
+                                                SuccessResponse)
 from fastapi import APIRouter, Depends
 from fastapi.responses import JSONResponse
 

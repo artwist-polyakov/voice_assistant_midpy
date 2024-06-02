@@ -1,9 +1,8 @@
 import logging
 from http import HTTPStatus
 
-from api.v1.models.requests.nlp_request import QuestionParam
-from api.v1.models.requests.nlp_request import FilmResponse
-from api.v1.models.requests.nlp_request import ErrorResponse
+from api.v1.models.requests.nlp_request import (ErrorResponse, FilmResponse,
+                                                QuestionParam)
 from db.models.requests.search_request import SearchRequest
 from fastapi import APIRouter, Depends
 from fastapi.responses import JSONResponse
@@ -62,7 +61,7 @@ async def ask_question(
         )
 
     if result:
-        if (not 'data' in result.keys() or len(result['data']) == 0):
+        if ('data' not in result.keys() or len(result['data']) == 0):
             return JSONResponse(
                 status_code=HTTPStatus.NO_CONTENT,
                 content=''
