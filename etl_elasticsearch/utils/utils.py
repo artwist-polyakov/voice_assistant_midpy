@@ -33,9 +33,16 @@ def backoff(start_sleep_time=0.1, factor=2, border_sleep_time=10):
                         border_sleep_time, start_sleep_time * factor * attempt
                     )
                     sleep_with_jitter = random.uniform(0, sleep_time)
-                    error_message = f"Error: {error}. Retrying in {sleep_with_jitter} seconds...\n"
                     error_traceback = traceback.format_exc()
-                    logging.error(f"{error_message}{error_traceback}")
+                    logging.error(
+                        'Error: %(error)s. Retrying in %(sleep_with_jitter).3f seconds...\n \
+                            %(error_traceback)s',
+                        {
+                            'error': str(error),
+                            'sleep_with_jitter': sleep_with_jitter,
+                            'error_traceback': error_traceback
+                        }
+                    )
                     time.sleep(sleep_with_jitter)
                     attempt += 1
 

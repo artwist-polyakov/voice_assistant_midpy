@@ -94,7 +94,7 @@ class ETL:
                     self.redis.save_update_time(key, value)
                 self.counter += 1
                 if self.counter % 100 == 0:
-                    logging.info(f"ETL counter: {self.counter}")
+                    logging.info('ETL counter: %s', self.counter)
 
                 time.sleep(0.5)
 

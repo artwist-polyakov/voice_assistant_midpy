@@ -34,8 +34,17 @@ def cached(result_type, cache_provider_attribute: str = "_cache"):
                 if isinstance(t, BaseCache):
                     cache_storage = t
                 else:
-                    logging.warning(f"Instance in {class_name}.{cache_provider_attribute} "
-                                    f"is not instance of CacheStorage. It is {t.__class__}")
+                    logging.warning(
+                        '''
+                        Instance in %(class_name)s.%(cache_provider_attribute)s
+                        is not instance of CacheStorage. It is %(t_class)s.
+                        ''',
+                        {
+                            'class_name': str(class_name),
+                            'cache_provider_attribute': cache_provider_attribute,
+                            't_class': str(t.__class__),
+                        }
+                    )
 
             # получаем данные из кеша
             result = await cache_storage.get_cache(key) if cache_storage else None
@@ -75,12 +84,21 @@ def backoff(max_attempts=-1, start_sleep_time=0.1, factor=2, border_sleep_time=1
                     sleep_with_jitter = random.uniform(0, sleep_time)
                     attempt_string = f" Attempt {max_attempts - attempt + 1} " \
                         if max_attempts >= 0 else " "
-                    logging.error(f"Error: {error}.{attempt_string}"
-                                  f"Retrying in {sleep_with_jitter} seconds...")
+                    logging.error(
+                        '''
+                        Error: %(error)s.%(attempt_string)s
+                        Retrying in %(sleep_with_jitter).3f seconds...
+                        ''',
+                        {
+                            'error': error,
+                            'attempt_string': attempt_string,
+                            'sleep_with_jitter': sleep_with_jitter,
+                        }
+                    )
                     time.sleep(sleep_with_jitter)
                     attempt -= 1 if max_attempts > 0 else 0
                     if attempt == 0:
-                        logging.error(f"Error: {error}. No more attempts")
+                        logging.error('Error: %s. No more attempts', error)
                         return None
 
         return inner
@@ -109,8 +127,17 @@ def asyncbackoff(max_attempts=-1, start_sleep_time=0.1, factor=2, border_sleep_t
                     sleep_time = min(sleep_time, border_sleep_time)
                     sleep_with_jitter = random.uniform(0, sleep_time)
                     attempt_string = f"Attempt {attempt}" if max_attempts > 0 else ""
-                    logging.error(f"Error: {error}.{attempt_string}"
-                                  f"Retrying in {sleep_with_jitter} seconds...")
+                    logging.error(
+                        '''
+                        Error: %(error)s.%(attempt_string)s
+                        Retrying in %(sleep_with_jitter).3f seconds...
+                        ''',
+                        {
+                            'error': error,
+                            'attempt_string': attempt_string,
+                            'sleep_with_jitter': sleep_with_jitter,
+                        }
+                    )
                     await asyncio.sleep(sleep_with_jitter)
             return None
 

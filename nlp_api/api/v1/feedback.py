@@ -1,3 +1,4 @@
+import json
 import logging
 from http import HTTPStatus
 
@@ -30,11 +31,20 @@ async def support(
         external_message_id: str,
         params: QuestionParam = Depends(),
 ) -> JSONResponse:
-    logging.info(f"Question received: external_user_id={external_user_id}, "
-                 f"external_session_id={external_session_id}, "
-                 f"external_message_id={external_message_id}, "
-                 f"params={params.model_dump()}")
-    logging.info(f"User feedback about error : {params.text}")
+    logging.info(
+        '''
+        Question received: external_user_id=%(external_user_id)s,
+        external_session_id=%(external_session_id)s,
+        external_message_id=%(external_message_id)s,
+        params=%(params_model_dump)s
+        ''', {
+                'external_user_id': external_user_id,
+                'external_session_id': external_session_id,
+                'external_message_id': external_message_id,
+                'params_model_dump': json.dumps(params.model_dump()),
+                },
+    )
+    logging.info('User feedback about error : %s', params.text)
     return JSONResponse(
         status_code=HTTPStatus.OK,
         content={'result': "Спасибо за обратную связь!"}
@@ -62,10 +72,19 @@ async def agree(
         external_message_id: str,
         params: QuestionParam = Depends(),
 ) -> JSONResponse:
-    logging.info(f"Question received: external_user_id={external_user_id}, "
-                 f"external_session_id={external_session_id}, "
-                 f"external_message_id={external_message_id}, "
-                 f"params={params.model_dump()}")
+    logging.info(
+        '''
+        Question received: external_user_id=%(external_user_id)s,
+        external_session_id=%(external_session_id)s,
+        external_message_id=%(external_message_id)s,
+        params=%(params_model_dump)s
+        ''', {
+                'external_user_id': external_user_id,
+                'external_session_id': external_session_id,
+                'external_message_id': external_message_id,
+                'params_model_dump': json.dumps(params.model_dump()),
+                },
+    )
     logging.info("User agreed with the response")
     return JSONResponse(
         status_code=HTTPStatus.OK,
