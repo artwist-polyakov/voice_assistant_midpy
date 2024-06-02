@@ -45,9 +45,18 @@ class RabbitSettings(BaseSettings):
     password: str
     exchange: str
     actor_queue: str
+    date_filter_queue: str
+    description_text_queue: str
+    director_queue: str
+    genre_filter_queue: str
+    subject_queue: str
+    rating_order_queue: str
+    title_text_queue: str
 
 
 settings = Settings()
+
+
 
 
 @lru_cache
