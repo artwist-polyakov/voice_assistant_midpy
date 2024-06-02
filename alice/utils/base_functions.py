@@ -2,6 +2,7 @@ import aiohttp
 
 session = aiohttp.ClientSession()
 
+
 async def get_response(url: str, params: dict = None, method: str = 'GET', cookies: dict = None):
     """
     Функция отправляет асинхронный запрос на сервер
