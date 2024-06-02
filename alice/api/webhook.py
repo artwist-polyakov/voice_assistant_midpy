@@ -1,4 +1,5 @@
 import logging
+from http import HTTPStatus
 
 from api.v1.models.request_model import RequestBody
 from core.settings import get_settings
@@ -103,8 +104,12 @@ async def handle_dialog(req, res):
 
     res['response']['buttons'] = get_suggests(user_id)
 
-    if status != 200:
+    if status not in [HTTPStatus.OK, HTTPStatus.NO_CONTENT]:
         res['response']['text'] = 'Ошибка сервера'
+        return
+
+    if status == HTTPStatus.NO_CONTENT:
+        res['response']['text'] = 'По вашему запросу ничего не найдено.'
         return
 
     res['response']['text'] = result['result']
@@ -113,23 +118,9 @@ async def handle_dialog(req, res):
 def get_suggests(user_id):
     session = sessionStorage[user_id]
 
-    # Выбираем две первые подсказки из массива.
     suggests = [
         {'title': suggest, 'hide': True}
-        for suggest in session['suggests'][:2]
+        for suggest in session['suggests']
     ]
-
-    # Убираем первую подсказку, чтобы подсказки менялись каждый раз.
-    session['suggests'] = session['suggests'][1:]
-    sessionStorage[user_id] = session
-
-    # Если осталась только одна подсказка, предлагаем подсказку
-    # со ссылкой на Яндекс.Маркет.
-    if len(suggests) < 2:
-        suggests.append({
-            "title": "Ладно",
-            "url": "https://market.yandex.ru/search?text=слон",
-            "hide": True
-        })
 
     return suggests
