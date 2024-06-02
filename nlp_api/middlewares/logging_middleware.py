@@ -12,27 +12,25 @@ class LoggingMiddleware(BaseHTTPMiddleware):
         request_id = request.headers.get(REQUEST_ID_KEY, uuid.uuid4())
         logging.info(
             '''
-            Request started.
-            Method: %(method)s,
-            URL: %(url)s,
-            X-Request-Id: %(request_id)s
-            ''', {
-                    'method': request.method,
-                    'url': request.url,
-                    'request_id': str(request_id),
-                },
+Request started.
+Method: %(method)s,
+URL: %(url)s,
+X-Request-Id: %(request_id)s''', {
+                'method': request.method,
+                'url': request.url,
+                'request_id': str(request_id),
+            },
         )
         response = await call_next(request)
         logging.info(
             '''
-            Request finished.
-            Method: %(method)s,
-            URL: %(url)s,
-            X-Request-Id: %(request_id)s
-            ''', {
-                    'method': request.method,
-                    'url': request.url,
-                    'request_id': str(request_id),
-                },
+Request finished.
+Method: %(method)s,
+URL: %(url)s,
+X-Request-Id: %(request_id)s''', {
+                'method': request.method,
+                'url': request.url,
+                'request_id': str(request_id),
+            },
         )
         return response
