@@ -87,6 +87,7 @@ async def main():
             )
         )
         tasks.append(task)
+    logging.info("Started with tasks %d", len(tasks))
     await asyncio.gather(*tasks)
 
 

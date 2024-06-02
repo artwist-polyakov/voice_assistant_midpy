@@ -44,4 +44,4 @@ class ElasticLoader(abc.ABC):
     @backoff()
     def _create_index(self):
         self._es.indices.create(index=self._index_name, body=self._schema)
-        logging.info(f"ELASTIC Index {self._index_name} created")
+        logging.info('ELASTIC Index %s created', self._index_name)

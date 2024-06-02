@@ -1,3 +1,4 @@
+import json
 import logging
 from functools import wraps
 
@@ -29,8 +30,8 @@ class ElasticSearch(BaseSearch):
         result = None
         try:
             index, search = await self._llm.get_query(request)
-            logging.info(f"Got query: {search.to_dict()}")
-            logging.info(f"Got index: {index}")
+            logging.info('Got query: %s', json.dumps(search.to_dict()))
+            logging.info('Got index: %s', index)
             result = await self._elastic.search(index='movies', body=search.to_dict())
             data = []
             for element in result['hits']['hits']:
