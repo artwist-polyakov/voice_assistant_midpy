@@ -18,23 +18,20 @@ router = APIRouter()
     summary="Ask a question",
     description="Ask a question to the cinema bot",
     responses={
-        HTTPStatus.OK: {
+        200: {
             "model": FilmResponse,
             "description": "Успешный запрос. Возвращает информацию о фильме"
         },
-        HTTPStatus.NO_CONTENT: {
-            "model": ErrorResponse,
-            "description": "Успешный запрос, но нет содержимого для возврата"
-         },
-        HTTPStatus.BAD_REQUEST: {
+        204: {},
+        400: {
             "model": ErrorResponse,
             "description": "Некорректный запрос. Возвращает сообщение об ошибке"
         },
-        HTTPStatus.NOT_FOUND: {
+        404: {
             "model": ErrorResponse,
             "description": "Ресурс не найден. Возвращает сообщение об отсутствии данных"
         },
-        HTTPStatus.INTERNAL_SERVER_ERROR: {
+        500: {
             "model": ErrorResponse,
             "description": "Внутренняя ошибка сервера. Запрос не удался"
         }
@@ -65,6 +62,11 @@ async def ask_question(
         )
 
     if result:
+        if (not 'data' in result.keys() or len(result['data']) == 0):
+            return JSONResponse(
+                status_code=HTTPStatus.NO_CONTENT,
+                content=''
+            )
         film_name = result['data'][0]['title']
         film_rating = result['data'][0]['imdb_rating']
         film_description = result['data'][0]['description']
