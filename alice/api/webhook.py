@@ -1,4 +1,5 @@
 import logging
+import aiohttp
 
 from api.v1.models.request_model import RequestBody
 from core.settings import get_settings
@@ -28,14 +29,16 @@ async def main(request: RequestBody):
         }
     }
 
-    await handle_dialog(request.dict(), response)
+    session = aiohttp.ClientSession(cookies=None)
+    await handle_dialog(request.dict(), response, session)
 
     logging.info('Response: %r', response)
+    session.close()
     # response['response']['text'] = "Привет от Саши! " + response['response']['text']
     return JSONResponse(content=response)
 
 
-async def handle_dialog(req, res):
+async def handle_dialog(req, res, session):
     user_id = req['session']['user_id']
     session_id = req['session']['session_id']
     message_id = req['session']['message_id']
@@ -54,7 +57,7 @@ async def handle_dialog(req, res):
         }
 
         res['response']['text'] = 'Привет! Расскажи, какое кино тебя интересует?'
-        res['response']['buttons'] = get_suggests(user_id)
+        res['response']['buttons'] = get_suggests(user_id, session)
         return
 
     text = req['request']['original_utterance'].lower()
@@ -90,6 +93,7 @@ async def handle_dialog(req, res):
         return
 
     result, status = await get_response(
+        session,
         'http://' +
         settings.nlp_server + ':' +
         str(settings.nlp_port) + '/' +
@@ -101,7 +105,7 @@ async def handle_dialog(req, res):
             'text': text}
     )
 
-    res['response']['buttons'] = get_suggests(user_id)
+    res['response']['buttons'] = get_suggests(user_id, session)
 
     if status != 200:
         res['response']['text'] = 'Ошибка сервера'
@@ -110,8 +114,7 @@ async def handle_dialog(req, res):
     res['response']['text'] = result['result']
 
 
-def get_suggests(user_id):
-    session = sessionStorage[user_id]
+def get_suggests(user_id, session):
 
     # Выбираем две первые подсказки из массива.
     suggests = [
