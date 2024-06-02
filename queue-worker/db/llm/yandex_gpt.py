@@ -10,20 +10,9 @@ class YandexGPTLLM(LLMProcessor):
     _llm: YandexGPT | None = None
     _settings = get_settings()
 
-    def __init__(self):
-        template: str = """
-Ты компьютер, который выдаёт в командную строку список актёров через запятую из запроса.
-Определи, содержится ли в данном запросе уточнение по имени актёра.
-Запрос: {query}
-Если ты сомневаешься, ответь: none.
-Если есть имена актёров, перечисли их через запятую, переводя на английский язык.
-Ответ должен содержать только имена актёров через запятую или none.
-Примеры:
-Запрос: "фильмы с Николаем Кейджем и Натали Портман"
-Ответ: "Nikolas Cage, Natalie Portman"
-"""  # noqa: E501
+    def __init__(self, prompt_template: str):
         super().__init__(
-            prompt_template=template,
+            prompt_template=prompt_template,
             max_tokens=20,
             temperature=0.1,
             top_p=0.1)
@@ -35,7 +24,7 @@ class YandexGPTLLM(LLMProcessor):
             temperature=self._temperature,
             top_p=self._top_p
         )
-        self._prompt_template = PromptTemplate(template=template, input_variables=["query"])
+        self._prompt_template = PromptTemplate(template=prompt_template, input_variables=["query"])
         self._llm_chain = self._prompt_template | self._llm
 
     def process_query(self, message: str) -> str | None:
