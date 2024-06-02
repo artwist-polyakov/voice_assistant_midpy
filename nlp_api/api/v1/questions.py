@@ -1,3 +1,4 @@
+import json
 import logging
 from http import HTTPStatus
 
@@ -43,17 +44,26 @@ async def ask_question(
         params: QuestionParam = Depends(),
         search_service: BaseService = Depends(get_queue_service)
 ) -> JSONResponse:
-    logging.info(f"Question received: external_user_id={external_user_id}, "
-                 f"external_session_id={external_session_id}, "
-                 f"external_message_id={external_message_id}, "
-                 f"params={params.model_dump()}")
+    logging.info(
+        '''
+            Question received: external_user_id=%(external_user_id)s,
+            external_session_id=%(external_session_id)s,
+            external_message_id=%(external_message_id)s,
+            params=%(params_model_dump)s
+            ''', {
+                    'external_user_id': external_user_id,
+                    'external_session_id': external_session_id,
+                    'external_message_id': external_message_id,
+                    'params_model_dump': json.dumps(params.model_dump()),
+                    },
+    )
     result = await search_service.proceed_request(SearchRequest(
         external_user_id=external_user_id,
         external_session_id=external_session_id,
         external_message_id=external_message_id,
         query=params.text
     ))
-    logging.info(f"Result: {result}")
+    logging.info('Result: %s', result)
     if len(result) == 0:
         return JSONResponse(
             status_code=HTTPStatus.NO_CONTENT,

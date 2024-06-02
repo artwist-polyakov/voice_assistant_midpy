@@ -1,4 +1,5 @@
 import asyncio
+import json
 import logging
 import re
 
@@ -25,7 +26,7 @@ class QueueLLM(BaseLLM):
         ])
         pipe_result = await self._llm_pipe.get_keys_with_values(prefix=prefix)
         prepr = QueueLLM._preprocess_pipe_result(pipe_result)
-        logging.info(f"Got result from pipe: {prepr}")
+        logging.info('Got result from pipe: %s', json.dumps(prepr))
 
         index = QueueLLM.get_index(prepr)
         search = Search(index=index)

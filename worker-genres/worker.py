@@ -1,4 +1,5 @@
 import ast
+import json
 import logging
 import time
 
@@ -30,20 +31,26 @@ def handler(
 ):
     try:
         data = SearchRequest(**ast.literal_eval(body.decode()))
-        logger.info(f"Processing | genre_parser | {data}")
+        logger.info('Processing | genre_parser | %s', json.dumps(data))
         start_time = time.time()
         result = llm.process_query(data.query)
-        logger.info(f"({time.time()-start_time}sec)\nResult | genre_parser | {result}")
+        logger.info(
+            '(%(seconds).3fsec)\nResult | genre_parser | %(result)s',
+            {
+                'seconds': time.time()-start_time,
+                'result': result,
+            }
+        )
         redis_cli.put_cache(
             properties.headers['Task-Id'] + '_genre',
             result if result else "None"
         )
         ch.basic_ack(delivery_tag=method.delivery_tag)
     except Exception as e:
-        logging.error(f"Error in callback: {e}")
+        logging.error('Error in callback: %s', str(e))
 
 
 try:
     rabbitmq_indices.pop(handler=handler)
 except Exception as e:
-    logger.error(f"Error in worker: {e}")
+    logger.error('Error in worker: %s', str(e))

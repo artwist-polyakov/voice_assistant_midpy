@@ -1,6 +1,7 @@
 import ast
 import logging
 import time
+import json
 
 from core.settings import get_rabbit_settings
 from db.cache.redis_cache import RedisCache
@@ -30,20 +31,26 @@ def handler(
 ):
     try:
         data = SearchRequest(**ast.literal_eval(body.decode()))
-        logger.info(f"Processing | director_parser | {data}")
+        logger.info('Processing | director_parser | %s', json.dumps(data))
         start_time = time.time()
         result = llm.process_query(data.query)
-        logger.info(f"({time.time()-start_time}sec)\nResult | director_parser | {result}")
+        logger.info(
+            '(%(seconds).3fsec)\nResult | director_parser | %(result)s',
+            {
+                'seconds': time.time()-start_time,
+                'result': result,
+            }
+        )
         redis_cli.put_cache(
             properties.headers['Task-Id'] + '_director',
             result if result else "None"
         )
         ch.basic_ack(delivery_tag=method.delivery_tag)
     except Exception as e:
-        logging.error(f"Error in callback: {e}")
+        logging.error('Error in callback: %s', str(e))
 
 
 try:
     rabbitmq_indices.pop(handler=handler)
 except Exception as e:
-    logger.error(f"Error in worker: {e}")
+    logger.error('Error in worker: %s', str(e))
