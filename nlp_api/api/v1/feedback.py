@@ -31,7 +31,7 @@ async def support(
         external_message_id: str,
         params: QuestionParam = Depends(),
 ) -> JSONResponse:
-    logging.info(        
+    logging.info(
         '''
         Question received: external_user_id=%(external_user_id)s,
         external_session_id=%(external_session_id)s,
