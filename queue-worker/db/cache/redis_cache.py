@@ -7,14 +7,14 @@ TIME_TO_STORE = 60 * 60 * 30  # 30 минут
 class RedisCache(BaseCache, RedisCore):
 
     @RedisCore.initialize
-    def put_cache(self, key: str, value: str, expired=TIME_TO_STORE) -> None:
-        self._redis.set(key, value, ex=expired)
+    async def put_cache(self, key: str, value: str, expired=TIME_TO_STORE) -> None:
+        await self._redis.set(key, value, ex=expired)
 
-    def close(self):
+    async def close(self):
         if self._redis is not None:
-            self._redis.close()
+            await self._redis.close()
             self._redis = None
 
     @RedisCore.initialize
-    def get_cache(self, key: str) -> str:
-        return self._redis.get(key)
+    async def get_cache(self, key: str) -> str:
+        return await self._redis.get(key)

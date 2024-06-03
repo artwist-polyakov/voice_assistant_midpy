@@ -10,5 +10,5 @@ class LLMProcessor(ABC):
         self._top_p = top_p
 
     @abstractmethod
-    def process_query(self, message: str) -> str | None:
+    async def process_query(self, message: str) -> str | None:
         pass

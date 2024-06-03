@@ -3,7 +3,7 @@ from functools import wraps
 
 from core.settings import get_settings
 
-from redis import Redis
+from redis.asyncio import Redis
 
 
 class RedisCore(ABC):
@@ -13,13 +13,13 @@ class RedisCore(ABC):
     @staticmethod
     def initialize(func):
         @wraps(func)
-        def inner(self, *args, **kwargs):
+        async def inner(self, *args, **kwargs):
             if self._redis is None:
-                self._redis = Redis(
+                self._redis = await Redis(
                     host=self._settings.redis_host,
                     port=self._settings.redis_port,
                     db=self._settings.redis_db,
                 )
-            return func(self, *args, **kwargs)
+            return await func(self, *args, **kwargs)
 
         return inner

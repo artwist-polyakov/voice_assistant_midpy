@@ -1,9 +1,9 @@
 import logging
-
 from core.settings import get_settings
 from db.llm.llm_processor import LLMProcessor
 from langchain import PromptTemplate
 from langchain_community.llms import YandexGPT
+import asyncio
 
 
 class YandexGPTLLM(LLMProcessor):
@@ -27,9 +27,17 @@ class YandexGPTLLM(LLMProcessor):
         self._prompt_template = PromptTemplate(template=prompt_template, input_variables=["query"])
         self._llm_chain = self._prompt_template | self._llm
 
-    def process_query(self, message: str) -> str | None:
-        answer = self._llm_chain.invoke(message).lower()
-        logging.info(f'answer is {answer}')
-        if 'none' in answer:
-            return None
-        return answer
+    async def process_query(self, message: str) -> str | None:
+        try:
+            answer = await self._llm_chain.ainvoke(message)
+            answer = answer.lower()
+            logging.info(f'answer is {answer}')
+            if 'none' in answer:
+                return None
+            return answer
+        except asyncio.CancelledError:
+            logging.error("Task was cancelled")
+            raise
+        except Exception as e:
+            logging.error(f"Error processing query: {e}")
+            raise

@@ -1,16 +1,14 @@
-import ast
-import asyncio
 import logging
+import asyncio
+import ast
 import time
-
+from aio_pika import connect_robust
+from aio_pika.abc import AbstractIncomingMessage
 from core.prompts import Prompts
 from core.settings import get_rabbit_settings
 from db.cache.redis_cache import RedisCache
 from db.llm.yandex_gpt import YandexGPTLLM
-from db.queues.rabbit_queue import RabbitQueue
 from models.search_request import SearchRequest
-from pika.channel import Channel
-from pika.spec import Basic, BasicProperties
 
 logger = logging.getLogger('universal-worker-logger')
 logger.setLevel(logging.INFO)
@@ -40,56 +38,81 @@ redis_keys = {
     rabbit_settings.title_text_queue: '_title'
 }
 
-rabbits = {}
-
-for queue in queues:
-    rabbits[queue] = RabbitQueue(queue)
-
-# llm = YandexGPTLLM()
 redis_cli = RedisCache()
 prompts_storage = Prompts()
 
 
-def create_handler(queue_key):
+async def create_handler(queue_key):
     llm = YandexGPTLLM(prompts_storage.get_prompt(queue_key))
 
-    def internal_handler(
-            ch: Channel,
-            method: Basic.Deliver,
-            properties: BasicProperties,
-            body: bytes
-    ):
-        try:
-            data = SearchRequest(**ast.literal_eval(body.decode()))
-            logger.info(f"Processing | {queue_key} | {data}")
-            start_time = time.time()
-            result = llm.process_query(data.query)
-            logger.info(f"({time.time() - start_time}sec)\nResult | {queue_key} | {result}")
-            redis_cli.put_cache(
-                properties.headers['Task-Id'] + redis_keys[queue_key],
-                result if result else "None"
-            )
-            ch.basic_ack(delivery_tag=method.delivery_tag)
+    async def internal_handler(message: AbstractIncomingMessage):
+        async with message.process():
+            try:
+                data = SearchRequest(**ast.literal_eval(message.body.decode()))
+                logger.info(f"Processing | {queue_key} | {data}")
+                start_time = time.time()
+                result = await llm.process_query(data.query)  # Асинхронный вызов
+                logger.info(f"({time.time() - start_time}sec)\nResult | {queue_key} | {result}")
 
-        except Exception as e:
-            logger.error(f"Error in callback: {e}")
+                await redis_cli.put_cache(
+                    message.headers['Task-Id'] + redis_keys[queue_key],
+                    result if result else "None"
+                )
+            except asyncio.CancelledError:
+                logger.error("Task was cancelled")
+                raise
+            except Exception as e:
+                logger.error(f"Error in callback: {e}")
 
     return internal_handler
 
 
-async def main():
-    tasks = []
-    for queue_name in queues:
-        task = asyncio.create_task(
-            asyncio.to_thread(
-                rabbits[queue_name].pop,
-                handler=create_handler(queue_name)
+async def rabbitmq_task():
+    while True:
+        try:
+            connection = await connect_robust(
+                "amqp://{user}:{password}@{host}:{port}/".format(
+                    user=rabbit_settings.user,
+                    password=rabbit_settings.password,
+                    host=rabbit_settings.host,
+                    port=rabbit_settings.amqp_port
+                )
             )
-        )
-        tasks.append(task)
-    logging.info("Started with tasks %d", len(tasks))
-    await asyncio.gather(*tasks)
+            async with connection:
+                tasks = []
+                for queue_name in queues:
+                    channel = await connection.channel()  # Creating channel
+                    await channel.set_qos(prefetch_count=1)
+                    queue = await channel.declare_queue(queue_name, durable=True)
+
+                    handler = await create_handler(queue_name)
+                    task = asyncio.create_task(queue.consume(handler))
+                    tasks.append(task)
+
+                logging.info("Started with tasks %d", len(tasks))
+                await asyncio.gather(*tasks)
+        except Exception as e:
+            logging.error(f"rabbitmq_task exception: {e} {type(e)}")
+        logging.error("rabbitMQ should never be here... sleep a little")
+        await asyncio.sleep(2)
 
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    logging.info('start asyncio loop')
+    loop = asyncio.get_event_loop()
+    loop.create_task(rabbitmq_task())
+
+    try:
+        loop.run_forever()
+    except Exception as e:
+        logging.error(f"loop.run_forever exception: {e}")
+    except KeyboardInterrupt:
+        logging.info("loop.run_forever: KeyboardInterrupt")
+    finally:
+        logging.info("stop forever loop")
+        tasks = [task for task in asyncio.all_tasks(loop) if not task.done()]
+        for task in tasks:
+            task.cancel()
+        future = asyncio.gather(*tasks, return_exceptions=True)
+        loop.run_until_complete(future)
+        loop.close()
