@@ -1,3 +1,5 @@
+import logging
+
 from db.llm_pipe.base_llm_pipe import BaseLLMPipe
 from db.llm_pipe.redis_core import RedisCore
 
@@ -6,7 +8,11 @@ class RedisLLMPipe(BaseLLMPipe, RedisCore):
 
     @RedisCore.initialize
     async def get_keys_with_values(self, prefix: str) -> dict:
+        logging.info(f"Getting keys with values by prefix: {prefix}")
         keys = await self._redis.keys(f"{prefix}*")
+        logging.info(f"Keys: {keys}")
+        if not keys:
+            return {}
         values = await self._redis.mget(*keys)
         return dict(zip(keys, values))
 
