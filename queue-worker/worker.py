@@ -2,7 +2,8 @@ import asyncio
 import logging
 import ast
 import time
-from aio_pika import connect_robust, IncomingMessage, Message
+import aio_pika
+from aio_pika.pool import Pool
 from core.prompts import Prompts
 from core.settings import get_rabbit_settings
 from db.cache.redis_cache import RedisCache
@@ -41,7 +42,7 @@ redis_cli = RedisCache()
 prompts_storage = Prompts()
 
 
-async def process_message(queue_name, message: IncomingMessage):
+async def process_message(queue_name, message: aio_pika.IncomingMessage):
     try:
         async with message.process():
             data = SearchRequest(**ast.literal_eval(message.body.decode()))
@@ -59,21 +60,31 @@ async def process_message(queue_name, message: IncomingMessage):
         logger.error(f"Error processing message: {e}")
 
 
-async def consume_from_queue(connection, queue_name):
-    channel = await connection.channel()
-    queue = await channel.declare_queue(queue_name, durable=True)
-
-    async for message in queue:
-        await process_message(queue_name, message)
+async def consume_from_queue(channel_pool: Pool, queue_name: str):
+    async with channel_pool.acquire() as channel:
+        await channel.set_qos(prefetch_count=10)
+        queue = await channel.declare_queue(queue_name, durable=True)
+        async with queue.iterator() as queue_iter:
+            async for message in queue_iter:
+                await process_message(queue_name, message)
 
 
 async def main():
-    connection = await connect_robust(
-        f"amqp://{rabbit_settings.user}:{rabbit_settings.password}@{rabbit_settings.host}:{rabbit_settings.amqp_port}/"
-    )
+    async def get_connection() -> aio_pika.abc.AbstractRobustConnection:
+        return await aio_pika.connect_robust(
+            f"amqp://{rabbit_settings.user}:{rabbit_settings.password}@{rabbit_settings.host}:{rabbit_settings.amqp_port}/"
+        )
 
-    async with connection:
-        tasks = [consume_from_queue(connection, queue_name) for queue_name in queues]
+    connection_pool: Pool = Pool(get_connection, max_size=2)
+
+    async def get_channel() -> aio_pika.Channel:
+        async with connection_pool.acquire() as connection:
+            return await connection.channel()
+
+    channel_pool: Pool = Pool(get_channel, max_size=10)
+
+    async with connection_pool, channel_pool:
+        tasks = [consume_from_queue(channel_pool, queue_name) for queue_name in queues]
         await asyncio.gather(*tasks)
 
 
