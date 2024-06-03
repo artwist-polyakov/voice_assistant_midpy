@@ -2,8 +2,7 @@ import asyncio
 import logging
 import ast
 import time
-
-from aio_pika import connect_robust, IncomingMessage
+from aio_pika import connect_robust, IncomingMessage, Message
 from core.prompts import Prompts
 from core.settings import get_rabbit_settings
 from db.cache.redis_cache import RedisCache
@@ -38,8 +37,6 @@ redis_keys = {
     rabbit_settings.title_text_queue: '_title'
 }
 
-rabbits = {}
-
 redis_cli = RedisCache()
 prompts_storage = Prompts()
 
@@ -62,20 +59,22 @@ async def process_message(queue_name, message: IncomingMessage):
         logger.error(f"Error processing message: {e}")
 
 
-async def consume_from_queue(queue_name):
-    connection = await connect_robust(
-        f"amqp://{rabbit_settings.user}:{rabbit_settings.password}@{rabbit_settings.host}:{rabbit_settings.amqp_port}/"
-    )
-    async with connection:
-        channel = await connection.channel()
-        queue = await channel.declare_queue(queue_name, durable=True)
+async def consume_from_queue(connection, queue_name):
+    channel = await connection.channel()
+    queue = await channel.declare_queue(queue_name, durable=True)
 
-        async for message in queue:
-            await process_message(queue_name, message)
+    async for message in queue:
+        await process_message(queue_name, message)
 
 
 async def main():
-    await asyncio.gather(*(consume_from_queue(queue_name) for queue_name in queues))
+    connection = await connect_robust(
+        f"amqp://{rabbit_settings.user}:{rabbit_settings.password}@{rabbit_settings.host}:{rabbit_settings.amqp_port}/"
+    )
+
+    async with connection:
+        tasks = [consume_from_queue(connection, queue_name) for queue_name in queues]
+        await asyncio.gather(*tasks)
 
 
 if __name__ == "__main__":
