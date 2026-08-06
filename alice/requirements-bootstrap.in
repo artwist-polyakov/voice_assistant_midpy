@@ -1,0 +1,2 @@
+# Fixed installer used before installing the hashed runtime lock.
+pip==26.2.1
