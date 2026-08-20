@@ -1,7 +1,7 @@
 # Direct runtime dependencies. Regenerate requirements.txt with uv pip compile.
-fastapi==0.109.1
+fastapi==0.141.1
 orjson==3.11.6
-pydantic==2.5.3
+pydantic==2.13.4
 pydantic-settings==2.1.0
 uvicorn==0.30.6
 sentry-sdk[fastapi]==1.45.1

@@ -2,8 +2,8 @@ import logging
 
 from core.settings import get_settings
 from db.llm.llm_processor import LLMProcessor
-from langchain import PromptTemplate
 from langchain_community.llms import YandexGPT
+from langchain_core.prompts import PromptTemplate
 
 
 class YandexGPTLLM(LLMProcessor):
