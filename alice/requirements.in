@@ -8,5 +8,6 @@ sentry-sdk[fastapi]==1.45.1
 aiohttp==3.14.5
 # Transitive via aiohttp; pinned below 7 because 7.x changes istr and keys().
 multidict==6.9.1
-# Transitive via sentry-sdk; pinned so the lock stays on the patched release.
+# Transitive via sentry-sdk; pinned so the lock stays on the patched releases.
 urllib3==2.8.0
+certifi==2026.10.23

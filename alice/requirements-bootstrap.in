@@ -1,2 +1,3 @@
 # Fixed installer used before installing the hashed runtime lock.
-pip==26.2.1
+# 26.2.2 vendors certifi 2026.10.19 and drops the compromised emSign roots.
+pip==26.2.2
